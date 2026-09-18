@@ -333,6 +333,7 @@ export function DashboardView() {
                   areas={areasQuery.data?.areas ?? null}
                   bestWindow={bestWindow}
                   forecast={forecastPoints}
+                  history={readings}
                   alerts={alerts}
                   onNavigate={setActiveTab}
                 />

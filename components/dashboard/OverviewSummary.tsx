@@ -12,6 +12,8 @@ import { useMemo, type ReactNode } from "react";
 
 import { AqiBadge } from "@/components/aqi/AqiBadge";
 import { AqiGauge } from "@/components/aqi/AqiGauge";
+import { AqiTrendChart } from "@/components/charts/AqiTrendChart";
+import { SeverityDonut } from "@/components/charts/SeverityDonut";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { QualityIndicator } from "@/components/dashboard/QualityIndicator";
 import {
@@ -30,6 +32,7 @@ import type {
   AreaReading,
   CurrentReading,
   ForecastPoint,
+  HistoryPoint,
   OverallSummary,
 } from "@/lib/aqi/types";
 import { formatHour, formatTime, partOfDay } from "@/lib/format";
@@ -44,6 +47,8 @@ interface OverviewSummaryProps {
   bestWindow: BestWindow | null;
   /** The horizon the window was picked from — drawn under the headline. */
   forecast: ForecastPoint[];
+  /** Observed hours, for the 24-hour shape under the hero. */
+  history: HistoryPoint[];
   alerts: AqiAlert[];
   /** Navigate to a tab when a summary card is clicked. */
   onNavigate: (tab: string) => void;
@@ -103,6 +108,7 @@ export function OverviewSummary({
   areas,
   bestWindow,
   forecast,
+  history,
   alerts,
   onNavigate,
 }: OverviewSummaryProps) {
@@ -127,6 +133,14 @@ export function OverviewSummary({
         )
         .map((point) => ({ key: point.predictedFor, value: point.aqi })),
     [forecast],
+  );
+
+  const historyPoints = useMemo(
+    () =>
+      [...history]
+        .sort((a, b) => Date.parse(a.observedAt) - Date.parse(b.observedAt))
+        .map((point) => ({ key: point.observedAt, value: point.aqi })),
+    [history],
   );
 
   const forecastPeak = useMemo(() => {
@@ -248,6 +262,30 @@ export function OverviewSummary({
         </Card>
       </motion.div>
 
+      {/*
+        Overview otherwise only says what the air is *now*. The 24-hour shape
+        is the one thing a headline number cannot carry — whether it is rising.
+        The full read, with the observed/predicted split spelled out, stays on
+        the Trends tab; this is a preview of it.
+      */}
+      {historyPoints.length > 1 ? (
+        <motion.div variants={riseIn}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg tracking-tight">
+                Last 24 hours
+              </CardTitle>
+              <CardDescription>
+                Observed hourly AQI, continuing into the forecast.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AqiTrendChart history={history} forecast={forecast} />
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : null}
+
       <motion.dl
         variants={stagger}
         initial="hidden"
@@ -262,6 +300,17 @@ export function OverviewSummary({
             overall != null
               ? `Across ${overall.areasWithData} of ${overall.areaCount} areas`
               : "Loading neighbourhood data…"
+          }
+          chart={
+            overall != null ? (
+              <Sparkline
+                points={historyPoints}
+                accent={getSeverityBand(overall.aqi).colorVar}
+                labelFormatter={formatHour}
+                className="h-12 w-full"
+                label={`Observed city AQI over the last ${historyPoints.length} hours.`}
+              />
+            ) : null
           }
           target="compare"
           onNavigate={onNavigate}
@@ -309,6 +358,15 @@ export function OverviewSummary({
             worst != null
               ? `Highest of ${hotspots.length} neighbourhood points`
               : "No area readings yet"
+          }
+          chart={
+            areas != null && areas.length > 0 ? (
+              <SeverityDonut
+                areas={areas}
+                showLegend={false}
+                className="h-20 w-full"
+              />
+            ) : null
           }
           target="hotspots"
           onNavigate={onNavigate}

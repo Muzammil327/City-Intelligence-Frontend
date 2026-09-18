@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 interface SeverityDonutProps {
   /** Every area, not just the ranked few — the ring is a share of the city. */
   areas: AreaReading[];
+  /** Off where the ring is a glance inside a small card, not a read. */
+  showLegend?: boolean;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ interface SeverityDonutProps {
  */
 export function SeverityDonut({
   areas,
+  showLegend = true,
   className = "h-48 w-full",
 }: SeverityDonutProps) {
   // Band order is the EPA scale's own order, so the ring reads good → hazardous.
@@ -82,21 +85,23 @@ export function SeverityDonut({
         </div>
       </div>
 
-      <ul className="space-y-1.5">
-        {slices.map((slice) => (
-          <li key={slice.id} className="flex items-center gap-2 text-xs">
-            <span
-              aria-hidden="true"
-              className="size-2.5 shrink-0 rounded-[3px]"
-              style={{ background: slice.color }}
-            />
-            <span className="min-w-0 flex-1 truncate text-muted-foreground">
-              {slice.label}
-            </span>
-            <span className="tabular-nums">{slice.value}</span>
-          </li>
-        ))}
-      </ul>
+      {showLegend ? (
+        <ul className="space-y-1.5">
+          {slices.map((slice) => (
+            <li key={slice.id} className="flex items-center gap-2 text-xs">
+              <span
+                aria-hidden="true"
+                className="size-2.5 shrink-0 rounded-[3px]"
+                style={{ background: slice.color }}
+              />
+              <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                {slice.label}
+              </span>
+              <span className="tabular-nums">{slice.value}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
