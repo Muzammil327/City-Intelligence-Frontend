@@ -425,18 +425,26 @@ function SummaryStat({
       >
         <Card className="h-full transition-colors group-hover:border-white/20">
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            {/*
+              The severity tag rides the header row rather than the value:
+              beside a 30px number a small pill floats against nothing, and
+              a label as long as "Unhealthy for Sensitive Groups" crowds the
+              figure it is supposed to qualify.
+            */}
+            <div className="flex items-center justify-between gap-3">
+              <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                 {label}
               </span>
-              <ArrowRight
-                aria-hidden="true"
-                className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-              />
+              <div className="flex min-w-0 items-center gap-2">
+                {valueDetail}
+                <ArrowRight
+                  aria-hidden="true"
+                  className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                />
+              </div>
             </div>
-            <p className="flex flex-wrap items-center gap-2 text-3xl font-medium leading-none tabular-nums">
-              <span className="min-w-0 truncate">{value}</span>
-              {valueDetail}
+            <p className="text-3xl font-medium leading-none tabular-nums">
+              <span className="block min-w-0 truncate">{value}</span>
             </p>
             <p className="text-xs leading-relaxed text-muted-foreground">
               {detail}
