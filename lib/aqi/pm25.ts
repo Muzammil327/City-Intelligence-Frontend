@@ -2,9 +2,9 @@
  * US EPA PM2.5 → AQI conversion — the single source of truth for every place
  * that turns a mass concentration into an index number.
  *
- * Extracted so both the demo-data builder and the scenario planner share the
- * same breakpoints. Moving to a different national AQI scale changes the table
- * here and nothing else.
+ * Extracted so the scenario planner and anything else converting a mass
+ * concentration share one table. Moving to a different national AQI scale
+ * changes the breakpoints here and nothing else.
  */
 
 /** US EPA PM2.5 breakpoints (hourly) in µg/m³. */
