@@ -128,8 +128,8 @@ const TAB_ICONS = {
 
 /**
  * The dashboard screen: a sidebar nav on the left, the active view on the
- * right. Assembled from the bundled demo dataset, with each block keeping its
- * own loading/error state so a failed query never blanks the page.
+ * right. Assembled from the live API, with each block keeping its own
+ * loading/error state so a failed query never blanks the page.
  */
 export function DashboardView() {
   const [activeTab, setActiveTab] = useState<string>(TABS[0].value);
@@ -311,7 +311,8 @@ export function DashboardView() {
         </TabsList>
 
         <p className="hidden text-[10px] leading-relaxed text-muted-foreground lg:mt-auto lg:block">
-          Running on bundled sample data — these are not live readings.
+          Live data from Open-Meteo, OpenWeatherMap and WAQI. Neighbourhood
+          values are model grid points, not physical sensors.
         </p>
       </aside>
 
@@ -330,7 +331,7 @@ export function DashboardView() {
           </div>
           {current ? (
             <p className="text-[11px] text-muted-foreground">
-              Sample reading · {formatDateTime(current.observedAt)}
+              Last reading · {formatDateTime(current.observedAt)}
             </p>
           ) : null}
         </header>
