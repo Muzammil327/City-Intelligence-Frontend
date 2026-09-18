@@ -12,8 +12,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { compassDirection } from "@/lib/format";
+import {
+  COMPARE_METRICS,
+  formatDelta,
+  formatMetricValue,
+  metricMeta,
+  valueForMetric,
+  type CompareMetric,
+} from "@/lib/aqi/compare";
 import type { AreaReading, OverallSummary } from "@/lib/aqi/types";
+import { compassDirection } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface ComparePanelProps {
@@ -21,21 +29,118 @@ interface ComparePanelProps {
   overall: OverallSummary;
 }
 
+type SortMode = "worst" | "best" | "name";
+type ViewMode = "chart" | "table";
+
+const SORT_OPTIONS: ReadonlyArray<{ value: SortMode; label: string }> = [
+  { value: "worst", label: "Worst first" },
+  { value: "best", label: "Cleanest first" },
+  { value: "name", label: "A → Z" },
+];
+
+const VIEW_OPTIONS: ReadonlyArray<{ value: ViewMode; label: string }> = [
+  { value: "chart", label: "Chart" },
+  { value: "table", label: "Table" },
+];
+
+/** A labelled segmented control, matching the pill language of the chips. */
+function PillGroup<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: ReadonlyArray<{ value: T; label: string }>;
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </span>
+      <div
+        role="group"
+        aria-label={label}
+        className="flex rounded-full border border-white/10 bg-white/[0.04] p-0.5"
+      >
+        {options.map((option) => {
+          const active = value === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              aria-pressed={active}
+              className={cn(
+                "rounded-full px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:bg-muted",
+              )}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Side-by-side comparison of the monitored areas — the answer to "which areas
  * are cleaner or dirtier right now?". The user chooses which areas to compare
- * (all are on by default); the picked ones are ranked worst-first against the
- * city average as the reference line.
+ * (all are on by default), which metric to rank them on, and which direction
+ * to sort; the picked ones are ranked against the city average (AQI) or the
+ * mean of the picked set (PM2.5 / PM10).
  */
 export function ComparePanel({ areas, overall }: ComparePanelProps) {
   const [selectedUids, setSelectedUids] = useState<string[]>(() =>
     areas.map((area) => area.uid),
   );
+  const [metric, setMetric] = useState<CompareMetric>("aqi");
+  const [sort, setSort] = useState<SortMode>("worst");
+  const [view, setView] = useState<ViewMode>("chart");
 
   const selected = useMemo(() => {
     const chosen = areas.filter((area) => selectedUids.includes(area.uid));
-    return [...chosen].sort((a, b) => b.aqi - a.aqi);
-  }, [areas, selectedUids]);
+    return [...chosen].sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name);
+      const aValue = valueForMetric(a, metric) ?? -Infinity;
+      const bValue = valueForMetric(b, metric) ?? -Infinity;
+      return sort === "worst" ? bValue - aValue : aValue - bValue;
+    });
+  }, [areas, selectedUids, metric, sort]);
+
+  // Rows the plot and the "dirtiest / cleanest" callouts can actually stand
+  // on: the metric was measured, so its value is a real number.
+  const chartRows = useMemo(
+    () => selected.filter((area) => valueForMetric(area, metric) != null),
+    [selected, metric],
+  );
+
+  const reference = useMemo(() => {
+    if (metric === "aqi") return overall.aqi;
+    if (chartRows.length === 0) return 0;
+    const total = chartRows.reduce(
+      (sum, area) => sum + (valueForMetric(area, metric) as number),
+      0,
+    );
+    return total / chartRows.length;
+  }, [metric, overall, chartRows]);
+
+  const referenceLabel = metric === "aqi" ? "city average" : "selected average";
+
+  const extremes = useMemo(() => {
+    if (chartRows.length === 0) return null;
+    let worst = chartRows[0];
+    let best = chartRows[0];
+    for (const area of chartRows) {
+      const value = valueForMetric(area, metric) as number;
+      if (value > (valueForMetric(worst, metric) as number)) worst = area;
+      if (value < (valueForMetric(best, metric) as number)) best = area;
+    }
+    return { worst, best };
+  }, [chartRows, metric]);
 
   if (areas.length === 0) {
     return (
@@ -65,8 +170,9 @@ export function ComparePanel({ areas, overall }: ComparePanelProps) {
       <CardHeader>
         <CardTitle>Area comparison</CardTitle>
         <CardDescription>
-          Pick the neighbourhoods to compare. Values are model-derived grid
-          points (Open-Meteo), not physical stations.
+          Pick the neighbourhoods to compare, then rank them by AQI or a
+          pollutant. Values are model-derived grid points (Open-Meteo), not
+          physical stations.
         </CardDescription>
       </CardHeader>
 
@@ -105,6 +211,12 @@ export function ComparePanel({ areas, overall }: ComparePanelProps) {
           })}
         </div>
 
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <PillGroup label="Rank by" options={COMPARE_METRICS} value={metric} onChange={setMetric} />
+          <PillGroup label="Sort" options={SORT_OPTIONS} value={sort} onChange={setSort} />
+          <PillGroup label="View" options={VIEW_OPTIONS} value={view} onChange={setView} />
+        </div>
+
         {selected.length === 0 ? (
           <EmptyState
             title="No areas selected"
@@ -112,67 +224,163 @@ export function ComparePanel({ areas, overall }: ComparePanelProps) {
           />
         ) : (
           <>
-            <AreaRankingChart areas={selected} cityAqi={overall.aqi} />
-            <p className="text-[10px] text-muted-foreground">
-              {selected.length} of {areas.length} areas shown · sorted worst to
-              cleanest against the city average
-            </p>
+            {extremes ? (
+              <div className="grid gap-2 sm:grid-cols-3">
+                <div className="rounded-lg border border-white/10 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    Dirtiest
+                  </p>
+                  <p className="truncate text-sm font-medium">
+                    {extremes.worst.name}
+                  </p>
+                  <p className="text-xs tabular-nums text-muted-foreground">
+                    {formatMetricValue(
+                      valueForMetric(extremes.worst, metric) as number,
+                      metric,
+                    )}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-white/10 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    Cleanest
+                  </p>
+                  <p className="truncate text-sm font-medium">
+                    {extremes.best.name}
+                  </p>
+                  <p className="text-xs tabular-nums text-muted-foreground">
+                    {formatMetricValue(
+                      valueForMetric(extremes.best, metric) as number,
+                      metric,
+                    )}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-white/10 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    Range
+                  </p>
+                  <p className="truncate text-sm font-medium">
+                    {chartRows.length} areas
+                  </p>
+                  <p className="text-xs tabular-nums text-muted-foreground">
+                    {formatMetricValue(
+                      (valueForMetric(extremes.worst, metric) as number) -
+                        (valueForMetric(extremes.best, metric) as number),
+                      metric,
+                    )}
+                  </p>
+                </div>
+              </div>
+            ) : null}
 
-            <details className="group/details">
-              <summary className="cursor-pointer list-none text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-                <span className="group-open/details:hidden">
-                  Show full readings
-                </span>
-                <span className="hidden group-open/details:inline">
-                  Hide full readings
-                </span>
-              </summary>
-
-              <div className="mt-4 overflow-x-auto">
+            {view === "chart" ? (
+              <AreaRankingChart
+                areas={selected}
+                metric={metric}
+                reference={reference}
+                referenceLabel={referenceLabel}
+              />
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-white/10">
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b text-xs uppercase tracking-wide text-muted-foreground">
-                      <th className="py-2 pr-4 font-medium">Area</th>
-                      <th className="py-2 pr-4 font-medium">AQI</th>
-                      <th className="py-2 pr-4 font-medium">PM2.5</th>
-                      <th className="py-2 pr-4 font-medium">Temp</th>
-                      <th className="py-2 pr-4 font-medium">Humidity</th>
-                      <th className="py-2 font-medium">Wind</th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pl-3 pr-4 font-medium backdrop-blur">
+                        #
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 font-medium backdrop-blur">
+                        Area
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 text-right font-medium backdrop-blur">
+                        vs avg
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 font-medium backdrop-blur">
+                        AQI
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 text-right font-medium backdrop-blur">
+                        PM2.5
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 text-right font-medium backdrop-blur">
+                        PM10
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 text-right font-medium backdrop-blur">
+                        Temp
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-4 text-right font-medium backdrop-blur">
+                        Humidity
+                      </th>
+                      <th className="sticky top-0 z-10 bg-background/80 py-2 pr-3 text-right font-medium backdrop-blur">
+                        Wind
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {selected.map((area) => (
-                      <tr key={area.uid} className="border-b last:border-0">
-                        <td className="py-2 pr-4 font-medium">{area.name}</td>
-                        <td className="py-2 pr-4">
-                          <AqiBadge aqi={area.aqi} showValue />
-                        </td>
-                        <td className="py-2 pr-4 tabular-nums">
-                          {area.pm25 != null ? `${area.pm25.toFixed(1)}` : "—"}
-                        </td>
-                        <td className="py-2 pr-4 tabular-nums">
-                          {area.temperatureC != null
-                            ? `${area.temperatureC.toFixed(1)} °C`
-                            : "—"}
-                        </td>
-                        <td className="py-2 pr-4 tabular-nums">
-                          {area.humidityPct != null
-                            ? `${Math.round(area.humidityPct)}%`
-                            : "—"}
-                        </td>
-                        <td className="py-2 tabular-nums">
-                          {area.windSpeedMs != null
-                            ? `${area.windSpeedMs.toFixed(1)} m/s ${
-                                compassDirection(area.windDirectionDeg) ?? ""
-                              }`
-                            : "—"}
-                        </td>
-                      </tr>
-                    ))}
+                    {selected.map((area, index) => {
+                      const value = valueForMetric(area, metric);
+                      const delta =
+                        value != null ? value - reference : null;
+                      return (
+                        <tr
+                          key={area.uid}
+                          className="border-b last:border-0"
+                        >
+                          <td className="py-2 pl-3 pr-4 text-xs tabular-nums text-muted-foreground">
+                            {index + 1}
+                          </td>
+                          <td className="py-2 pr-4 font-medium">
+                            {area.name}
+                          </td>
+                          <td className="py-2 pr-4 text-right tabular-nums">
+                            {delta != null ? formatDelta(delta, metric) : "—"}
+                          </td>
+                          <td className="py-2 pr-4">
+                            <AqiBadge aqi={area.aqi} showValue />
+                          </td>
+                          <td className="py-2 pr-4 text-right tabular-nums">
+                            {area.pm25 != null
+                              ? `${area.pm25.toFixed(1)}`
+                              : "—"}
+                          </td>
+                          <td className="py-2 pr-4 text-right tabular-nums">
+                            {area.pm10 != null
+                              ? `${area.pm10.toFixed(1)}`
+                              : "—"}
+                          </td>
+                          <td className="py-2 pr-4 text-right tabular-nums">
+                            {area.temperatureC != null
+                              ? `${area.temperatureC.toFixed(1)} °C`
+                              : "—"}
+                          </td>
+                          <td className="py-2 pr-4 text-right tabular-nums">
+                            {area.humidityPct != null
+                              ? `${Math.round(area.humidityPct)}%`
+                              : "—"}
+                          </td>
+                          <td className="py-2 pr-3 text-right tabular-nums">
+                            {area.windSpeedMs != null
+                              ? `${area.windSpeedMs.toFixed(1)} m/s ${
+                                  compassDirection(area.windDirectionDeg) ?? ""
+                                }`
+                              : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-            </details>
+            )}
+
+            <p className="text-[10px] text-muted-foreground">
+              {chartRows.length} of {areas.length} areas shown by{" "}
+              {metricMeta(metric).label} ·{" "}
+              {sort === "name"
+                ? "sorted by name"
+                : sort === "worst"
+                  ? "dirtiest first"
+                  : "cleanest first"}
+              · deltas vs {referenceLabel}{" "}
+              {formatMetricValue(reference, metric)}
+            </p>
           </>
         )}
       </CardContent>
