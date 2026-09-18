@@ -27,8 +27,8 @@ interface AqiGaugeProps {
  * ring: a gauge that always looks three-quarters full communicates nothing.
  */
 
-const SIZE = 240;
-const STROKE = 14;
+const SIZE = 210;
+const STROKE = 13;
 const CENTER = SIZE / 2;
 const RADIUS = CENTER - STROKE;
 
@@ -138,13 +138,13 @@ export function AqiGauge({ aqi, caption = "US EPA AQI" }: AqiGaugeProps) {
         */}
         <motion.span
           aria-hidden="true"
-          className="font-mono text-6xl leading-none font-medium tabular-nums"
+          className="text-5xl leading-none font-medium tabular-nums"
         >
           {displayed}
         </motion.span>
         <span
           aria-hidden="true"
-          className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
+          className="mt-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
         >
           {caption}
         </span>

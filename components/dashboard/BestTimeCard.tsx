@@ -14,7 +14,7 @@ import {
 import type { BestWindow } from "@/lib/aqi/best-time";
 import { getSeverityBand } from "@/lib/aqi/severity";
 import type { ForecastPoint } from "@/lib/aqi/types";
-import { formatHour } from "@/lib/format";
+import { formatHour, partOfDay } from "@/lib/format";
 
 interface BestTimeCardProps {
   bestWindow: BestWindow | null;
@@ -23,22 +23,6 @@ interface BestTimeCardProps {
   /** Whether a forecast exists at all — distinguishes "no good window yet"
    *  from "no forecast, so nothing to say". */
   hasForecast: boolean;
-}
-
-/**
- * When the peak falls, in words a person uses for a time of day.
- *
- * Read off the formatted hour rather than the Date's own getters, so it lands
- * in the app's display timezone instead of the viewer's machine.
- */
-function partOfDay(isoTimestamp: string): string {
-  const hour = Number.parseInt(formatHour(isoTimestamp).slice(0, 2), 10);
-  if (Number.isNaN(hour)) return "";
-  if (hour < 5) return "overnight";
-  if (hour < 12) return "in the morning";
-  if (hour < 17) return "in the afternoon";
-  if (hour < 21) return "in the evening";
-  return "overnight";
 }
 
 /**
@@ -93,13 +77,13 @@ export function BestTimeCard({
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <p className="font-mono text-5xl leading-none tabular-nums">
+              <p className="text-5xl leading-none tabular-nums">
                 {bestWindow.averageAqi}
               </p>
               <AqiBadge aqi={bestWindow.averageAqi} />
             </div>
 
-            <p className="font-mono text-[11px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {formatHour(bestWindow.start)} → {formatHour(bestWindow.end)} (
               {bestWindow.hours}h)
               {peak ? (

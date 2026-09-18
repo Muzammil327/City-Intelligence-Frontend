@@ -2,6 +2,14 @@
 
 import { CircleMarker, MapContainer, Popup, TileLayer } from "react-leaflet";
 
+/**
+ * Leaflet positions its tile container and every tile absolutely, from its own
+ * stylesheet. Without this import the tiles render as unpositioned images and
+ * the map appears as a couple of offset squares. It is imported here rather
+ * than in `globals.css` so it ships only with the client-only map chunk.
+ */
+import "leaflet/dist/leaflet.css";
+
 import type { AreaReading } from "@/lib/aqi/types";
 import { getSeverityBand } from "@/lib/aqi/severity";
 import { compassDirection } from "@/lib/format";

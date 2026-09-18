@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  /* `--font-inter` is set on <html> by the next/font loader in `app/layout.tsx`.
+     The trailing stack is what renders if that stylesheet has not arrived yet. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -230,28 +231,9 @@
     0 12px 40px oklch(0.05 0 0 / 45%);
 }
 
-/* The ground the glass sits on. Fixed, so scrolling moves the panels over a
-   stationary wash rather than dragging the gradient with them. */
+/* The ground the glass sits on. Plain, so nothing competes with the panels. */
 body {
   background-color: var(--background);
-  background-image:
-    radial-gradient(
-      60rem 40rem at 12% -8%,
-      oklch(0.62 0.17 35 / 12%),
-      transparent 60%
-    ),
-    radial-gradient(
-      52rem 34rem at 92% 4%,
-      oklch(0.55 0.16 305 / 10%),
-      transparent 60%
-    ),
-    radial-gradient(
-      70rem 46rem at 50% 112%,
-      oklch(0.58 0.13 240 / 9%),
-      transparent 62%
-    );
-  background-attachment: fixed;
-  background-repeat: no-repeat;
 }
 
 /* Every shadcn Card becomes a frosted panel. Styling the data-slot here rather
@@ -271,8 +253,10 @@ body {
   box-shadow: var(--glass-shadow);
 }
 
-/* The tab bar is the one other surface that floats. */
-[data-slot="tabs-list"] {
+/* The pill tab bar is the one other surface that floats. The `line` variant
+   opts out by design — the dashboard sidebar uses it, and a panel there would
+   draw a second box inside the sidebar column. */
+[data-slot="tabs-list"][data-variant="default"] {
   background-color: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(150%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
@@ -298,7 +282,7 @@ body {
 
 @media (prefers-reduced-transparency: reduce) {
   [data-slot="card"],
-  [data-slot="tabs-list"] {
+  [data-slot="tabs-list"][data-variant="default"] {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background-color: var(--glass-bg-solid);

@@ -128,7 +128,7 @@ export function HistoryLineChart({ history, hours = 24 }: HistoryLineChartProps)
 
       <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-foreground/80">
-          Peak <span className="font-mono tabular-nums">{peak.aqi}</span>
+          Peak <span className="tabular-nums">{peak.aqi}</span>
           <span className="text-muted-foreground">
             {" "}
             · {formatTime(peak.timestamp)}

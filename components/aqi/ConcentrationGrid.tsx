@@ -61,7 +61,7 @@ export function ConcentrationGrid({
           >
             <dt className="leading-tight">
               <span className="block text-xs font-medium">{label}</span>
-              <span className="block font-mono text-[10px] text-muted-foreground">
+              <span className="block text-[10px] text-muted-foreground">
                 {unit}
               </span>
             </dt>
@@ -85,7 +85,7 @@ export function ConcentrationGrid({
               ) : null}
             </div>
 
-            <dd className="min-w-[4rem] text-right font-mono text-sm tabular-nums">
+            <dd className="min-w-[4rem] text-right text-sm tabular-nums">
               {value != null ? (
                 value.toFixed(1)
               ) : (

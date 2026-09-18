@@ -94,14 +94,14 @@ export function OverallCard({ overall }: OverallCardProps) {
 
       <CardContent className="space-y-5">
         <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-          <p className="font-mono text-5xl leading-none tabular-nums">
+          <p className="text-5xl leading-none tabular-nums">
             {overall.aqi}
           </p>
           <div className="pb-1">
             <AqiBadge aqi={overall.aqi} />
           </div>
           {overall.pm25 != null ? (
-            <p className="pb-1.5 font-mono text-xs text-muted-foreground">
+            <p className="pb-1.5 text-xs text-muted-foreground">
               PM2.5 {overall.pm25.toFixed(1)} µg/m³
             </p>
           ) : null}
@@ -116,7 +116,7 @@ export function OverallCard({ overall }: OverallCardProps) {
             />
             <div className="flex items-start justify-between gap-3 text-[11px]">
               <span className="min-w-0">
-                <span className="block font-mono tabular-nums">
+                <span className="block tabular-nums">
                   {overall.lowestAqi}
                 </span>
                 <span className="block truncate text-muted-foreground">
@@ -124,7 +124,7 @@ export function OverallCard({ overall }: OverallCardProps) {
                 </span>
               </span>
               <span className="min-w-0 text-right">
-                <span className="block font-mono tabular-nums">
+                <span className="block tabular-nums">
                   {overall.highestAqi}
                 </span>
                 <span className="block truncate text-muted-foreground">

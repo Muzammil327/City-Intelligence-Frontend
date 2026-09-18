@@ -113,7 +113,7 @@ export function ComparePanel({ areas, overall }: ComparePanelProps) {
         ) : (
           <>
             <AreaRankingChart areas={selected} cityAqi={overall.aqi} />
-            <p className="font-mono text-[10px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground">
               {selected.length} of {areas.length} areas shown · sorted worst to
               cleanest against the city average
             </p>
@@ -147,20 +147,20 @@ export function ComparePanel({ areas, overall }: ComparePanelProps) {
                         <td className="py-2 pr-4">
                           <AqiBadge aqi={area.aqi} showValue />
                         </td>
-                        <td className="py-2 pr-4 font-mono tabular-nums">
+                        <td className="py-2 pr-4 tabular-nums">
                           {area.pm25 != null ? `${area.pm25.toFixed(1)}` : "—"}
                         </td>
-                        <td className="py-2 pr-4 font-mono tabular-nums">
+                        <td className="py-2 pr-4 tabular-nums">
                           {area.temperatureC != null
                             ? `${area.temperatureC.toFixed(1)} °C`
                             : "—"}
                         </td>
-                        <td className="py-2 pr-4 font-mono tabular-nums">
+                        <td className="py-2 pr-4 tabular-nums">
                           {area.humidityPct != null
                             ? `${Math.round(area.humidityPct)}%`
                             : "—"}
                         </td>
-                        <td className="py-2 font-mono tabular-nums">
+                        <td className="py-2 tabular-nums">
                           {area.windSpeedMs != null
                             ? `${area.windSpeedMs.toFixed(1)} m/s ${
                                 compassDirection(area.windDirectionDeg) ?? ""

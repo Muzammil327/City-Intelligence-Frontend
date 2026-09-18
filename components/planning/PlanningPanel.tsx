@@ -103,7 +103,7 @@ export function PlanningPanel() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="grid items-start gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Planning scenarios</CardTitle>
@@ -127,7 +127,7 @@ export function PlanningPanel() {
                   <label className="text-sm font-medium" htmlFor={measure.id}>
                     {measure.label}
                   </label>
-                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                  <span className="text-xs tabular-nums text-muted-foreground">
                     {Math.round(scenario[measure.id] ?? 0)}%
                   </span>
                 </div>
@@ -154,7 +154,7 @@ export function PlanningPanel() {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2">
             <p className="text-sm">
               Combined effect:{" "}
-              <span className="font-mono tabular-nums">
+              <span className="tabular-nums">
                 {reductionPct.toFixed(1)}%
               </span>{" "}
               lower PM2.5 city-wide
@@ -198,7 +198,7 @@ export function PlanningPanel() {
             </div>
 
             <div className="ml-auto space-y-1 text-right">
-              <p className="font-mono text-sm tabular-nums">
+              <p className="text-sm tabular-nums">
                 {result.overall.deltaAqi < 0
                   ? `${result.overall.deltaAqi} on the city average`
                   : "no change"}
@@ -253,12 +253,12 @@ export function PlanningPanel() {
                   {result.areas.map((sweep) => (
                     <tr key={sweep.uid} className="border-b last:border-0">
                       <td className="py-2 pr-4 font-medium">{sweep.name}</td>
-                      <td className="py-2 pr-4 font-mono tabular-nums">
+                      <td className="py-2 pr-4 tabular-nums">
                         {sweep.basePm25 != null
                           ? sweep.basePm25.toFixed(1)
                           : "—"}
                       </td>
-                      <td className="py-2 pr-4 font-mono tabular-nums">
+                      <td className="py-2 pr-4 tabular-nums">
                         {sweep.projectedPm25 != null
                           ? sweep.projectedPm25.toFixed(1)
                           : "—"}

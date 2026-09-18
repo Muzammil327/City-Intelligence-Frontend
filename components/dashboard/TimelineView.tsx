@@ -69,7 +69,7 @@ export function TimelineView({
               className={`${band.className} size-2 shrink-0 rounded-full`}
               aria-hidden="true"
             />
-            <span className="font-mono tabular-nums">{row.aqi}</span>
+            <span className="tabular-nums">{row.aqi}</span>
             {row.predicted ? (
               <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                 predicted

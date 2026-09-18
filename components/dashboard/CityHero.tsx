@@ -46,10 +46,10 @@ function Metric({
         {icon}
       </span>
       <div className="min-w-0">
-        <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <dt className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
           {label}
         </dt>
-        <dd className="font-mono text-base tabular-nums leading-tight">
+        <dd className="text-base tabular-nums leading-tight">
           {value}
         </dd>
       </div>

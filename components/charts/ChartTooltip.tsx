@@ -76,7 +76,7 @@ export function ChartTooltipContent({
   return (
     <TooltipSurface>
       {heading ? (
-        <p className="mb-1 font-mono text-[10px] text-muted-foreground">
+        <p className="mb-1 text-[10px] text-muted-foreground">
           {heading}
         </p>
       ) : null}
@@ -109,7 +109,7 @@ export function ChartTooltipContent({
               {rows.length > 1 && entry.name ? (
                 <span className="text-muted-foreground">{entry.name}</span>
               ) : null}
-              <span className="font-mono tabular-nums">{rendered}</span>
+              <span className="tabular-nums">{rendered}</span>
               {showBand && isNumber ? (
                 <span className="text-muted-foreground">
                   {getSeverityBand(numeric).label}

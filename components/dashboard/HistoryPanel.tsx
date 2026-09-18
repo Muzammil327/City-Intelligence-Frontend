@@ -148,7 +148,7 @@ export function HistoryPanel() {
                         <td className="px-3 py-1.5 tabular-nums">
                           {formatDateTime(point.observedAt)}
                         </td>
-                        <td className="px-3 py-1.5 font-mono tabular-nums">
+                        <td className="px-3 py-1.5 tabular-nums">
                           {point.aqi}
                         </td>
                         <td className="px-3 py-1.5">

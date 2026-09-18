@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-
-import { AuroraBackground } from "@/components/visual/AuroraBackground";
+import { Inter } from "next/font/google";
 
 import { Providers } from "./providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -32,10 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
        * The light tokens stay in `globals.css` so a theme switch remains
        * possible, but nothing selects them today.
        */
-      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${inter.variable} h-full antialiased`}
     >
       <body className="relative min-h-full flex flex-col">
-        <AuroraBackground />
         <Providers>{children}</Providers>
       </body>
     </html>

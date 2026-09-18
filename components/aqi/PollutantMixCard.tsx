@@ -88,25 +88,35 @@ export function PollutantMixCard({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <PollutantRadar concentrations={concentrations} accent={band.colorVar} />
-
-        {summary ? (
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            {summary}
-          </p>
-        ) : null}
-
-        <div className="flex items-center gap-2 text-xs">
-          <span
-            aria-hidden="true"
-            className="size-2.5 rounded-[3px]"
-            style={{ background: band.colorVar }}
+      {/*
+        Shape on the left, measurements on the right. Stacked below `lg`,
+        where neither the radar's axis labels nor the bars' own labels have
+        the width to survive a split.
+      */}
+      <CardContent className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
+        <div className="space-y-4">
+          <PollutantRadar
+            concentrations={concentrations}
+            accent={band.colorVar}
           />
-          <span className="text-muted-foreground">Today&rsquo;s mix</span>
+
+          {summary ? (
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {summary}
+            </p>
+          ) : null}
+
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-[3px]"
+              style={{ background: band.colorVar }}
+            />
+            <span className="text-muted-foreground">Today&rsquo;s mix</span>
+          </div>
         </div>
 
-        <div className="border-t border-white/5 pt-4">
+        <div className="border-t border-white/5 pt-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
           <ConcentrationGrid
             concentrations={concentrations}
             accent={band.colorVar}

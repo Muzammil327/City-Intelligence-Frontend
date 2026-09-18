@@ -126,7 +126,7 @@ export function RecommendationsPanel({
         >
           {TOPICS.map((topic) => (
             <motion.div key={topic.key} variants={riseIn} className="space-y-2">
-              <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              <dt className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                 {topic.label}
               </dt>
               <dd className="space-y-2">
@@ -141,7 +141,7 @@ export function RecommendationsPanel({
 
         {forecast.length > 0 ? (
           <div className="space-y-2 border-t border-white/5 pt-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               Next {forecast.length} hours
             </p>
             <ForecastRibbon points={forecast} bestWindow={bestWindow} />

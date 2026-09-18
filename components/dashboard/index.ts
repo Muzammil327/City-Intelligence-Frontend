@@ -7,6 +7,7 @@ export { ExplainableForecastCard } from "./ExplainableForecastCard";
 export { HistoryPanel } from "./HistoryPanel";
 export { HotspotsPanel } from "./HotspotsPanel";
 export { OverallCard } from "./OverallCard";
+export { OverviewSummary } from "./OverviewSummary";
 export { QualityIndicator } from "./QualityIndicator";
 export { RecommendationsPanel } from "./RecommendationsPanel";
 export { TimelineView } from "./TimelineView";

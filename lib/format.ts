@@ -54,6 +54,22 @@ export function formatTime(isoTimestamp: string): string {
   return FULL_TIME.format(new Date(isoTimestamp));
 }
 
+/**
+ * When an hour falls, in the words a person uses for a time of day.
+ *
+ * Read off the formatted hour rather than the Date's own getters, so it lands
+ * in the app's display timezone instead of the viewer's machine.
+ */
+export function partOfDay(isoTimestamp: string): string {
+  const hour = Number.parseInt(formatHour(isoTimestamp).slice(0, 2), 10);
+  if (Number.isNaN(hour)) return "";
+  if (hour < 5) return "overnight";
+  if (hour < 12) return "in the morning";
+  if (hour < 17) return "in the afternoon";
+  if (hour < 21) return "in the evening";
+  return "overnight";
+}
+
 const COMPASS: ReadonlyArray<string> = [
   "N",
   "NNE",

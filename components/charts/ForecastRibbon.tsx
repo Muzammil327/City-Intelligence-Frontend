@@ -87,7 +87,7 @@ export function ForecastRibbon({ points, bestWindow }: ForecastRibbonProps) {
             }}
           >
             <TooltipSurface>
-              <p className="mb-0.5 font-mono text-[10px] text-muted-foreground">
+              <p className="mb-0.5 text-[10px] text-muted-foreground">
                 {formatHour(active.predictedFor)}
               </p>
               <p className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function ForecastRibbon({ points, bestWindow }: ForecastRibbonProps) {
                   className="size-2 shrink-0 rounded-[2px]"
                   style={{ background: getSeverityBand(active.aqi).colorVar }}
                 />
-                <span className="font-mono tabular-nums">{active.aqi}</span>
+                <span className="tabular-nums">{active.aqi}</span>
                 <span className="text-muted-foreground">
                   {getSeverityBand(active.aqi).label}
                 </span>
@@ -160,7 +160,7 @@ export function ForecastRibbon({ points, bestWindow }: ForecastRibbonProps) {
 
       <div
         aria-hidden="true"
-        className="flex justify-between font-mono text-[10px] text-muted-foreground"
+        className="flex justify-between text-[10px] text-muted-foreground"
       >
         {points
           .filter((_, index) => index % LABEL_EVERY === 0)
@@ -174,11 +174,11 @@ export function ForecastRibbon({ points, bestWindow }: ForecastRibbonProps) {
       {bestWindow ? (
         <figcaption className="text-xs text-muted-foreground">
           Cleanest stretch{" "}
-          <span className="font-mono text-foreground">
+          <span className="text-foreground">
             {formatHour(bestWindow.start)}–{formatHour(bestWindow.end)}
           </span>{" "}
           · averages{" "}
-          <span className="font-mono text-foreground">
+          <span className="text-foreground">
             AQI {bestWindow.averageAqi}
           </span>
           , peaking at {bestWindow.peakAqi}.

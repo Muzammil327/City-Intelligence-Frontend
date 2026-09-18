@@ -49,7 +49,7 @@ export function HotspotsPanel({ areas, overall }: HotspotsPanelProps) {
                 className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground">
+                  <span className="w-5 shrink-0 text-right text-xs text-muted-foreground">
                     {index + 1}
                   </span>
                   <div className="min-w-0">

@@ -7,7 +7,6 @@ import { Search } from "lucide-react";
 import { AqiBadge } from "@/components/aqi/AqiBadge";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
-import { AreasMapPanel } from "@/components/map/AreasMapPanel";
 import {
   Card,
   CardContent,
@@ -22,10 +21,12 @@ import { compassDirection, formatDateTime } from "@/lib/format";
 import type { AreaReading } from "@/lib/aqi/types";
 
 /**
- * The monitoring network. Lahore has no official sensor stations, so each
- * "station" here is a real neighbourhood coordinate read from a gridded air
- * model — the UI shows the map the dashboard always had, plus one selected
- * station's full reading at a time. The list can be filtered by name.
+ * The monitoring network as a list. Lahore has no official sensor stations, so
+ * each "station" here is a real neighbourhood coordinate read from a gridded
+ * air model. Filter by name, then pick one to read its full reading.
+ *
+ * The map lives on its own tab as `StationMapPanel`, which always shows every
+ * point — this filter is local to the list.
  */
 export function StationPanel() {
   const [selectedUid, setSelectedUid] = useState<string | null>(null);
@@ -72,19 +73,18 @@ export function StationPanel() {
     (visible[0] as AreaReading);
 
   return (
-    <div className="space-y-6">
-      <AreasMapPanel areas={visible} />
+    <Card>
+      <CardHeader>
+        <CardTitle>Monitoring stations</CardTitle>
+        <CardDescription>
+          One monitoring point per neighbourhood. Filter the list, then pick
+          a station to read its full picture.
+        </CardDescription>
+      </CardHeader>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Monitoring stations</CardTitle>
-          <CardDescription>
-            One monitoring point per neighbourhood. Filter the list, then pick
-            a station to read its full picture.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
+      {/* List on the left, the selected station's reading on the right. */}
+      <CardContent className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
+        <div className="space-y-4">
           <div className="relative">
             <Search
               aria-hidden="true"
@@ -111,42 +111,40 @@ export function StationPanel() {
               description="Try a different name — for example “Gulberg” or “DHA”."
             />
           ) : (
-            <>
-              <ul className="grid gap-2 sm:grid-cols-2">
-                {visible.map((station) => {
-                  const isSelected = station.uid === selected.uid;
-                  return (
-                    <li key={station.uid}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedUid(station.uid)}
-                        aria-pressed={isSelected}
-                        className="flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-muted/50 aria-pressed:border-foreground/40 aria-pressed:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                      >
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-medium">
-                            {station.name}
-                          </span>
-                          <span className="block text-xs text-muted-foreground">
-                            PM2.5{" "}
-                            {station.pm25 != null
-                              ? `${station.pm25.toFixed(1)} µg/m³`
-                              : "—"}
-                          </span>
+            <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+              {visible.map((station) => {
+                const isSelected = station.uid === selected.uid;
+                return (
+                  <li key={station.uid}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedUid(station.uid)}
+                      aria-pressed={isSelected}
+                      className="flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-muted/50 aria-pressed:border-foreground/40 aria-pressed:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium">
+                          {station.name}
                         </span>
-                        <AqiBadge aqi={station.aqi} showValue />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <StationDetail station={selected} />
-            </>
+                        <span className="block text-xs text-muted-foreground">
+                          PM2.5{" "}
+                          {station.pm25 != null
+                            ? `${station.pm25.toFixed(1)} µg/m³`
+                            : "—"}
+                        </span>
+                      </span>
+                      <AqiBadge aqi={station.aqi} showValue />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        {visible.length > 0 ? <StationDetail station={selected} /> : null}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -184,7 +182,7 @@ function StationDetail({ station }: { station: AreaReading }) {
             className="flex items-baseline justify-between border-b pb-1.5 text-sm last:border-0"
           >
             <dt className="text-muted-foreground">{metric.label}</dt>
-            <dd className="font-mono tabular-nums">
+            <dd className="tabular-nums">
               {metric.value != null
                 ? `${metric.value.toFixed(1)} ${metric.unit}${
                     metric.suffix ? ` ${metric.suffix}` : ""

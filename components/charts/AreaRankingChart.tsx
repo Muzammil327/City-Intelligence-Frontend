@@ -25,7 +25,7 @@ function Detail({ label, value }: { label: string; value: string | null }) {
   return (
     <li className="flex items-baseline justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-mono tabular-nums">{value}</span>
+      <span className="tabular-nums">{value}</span>
     </li>
   );
 }
@@ -86,7 +86,7 @@ export function AreaRankingChart({ areas, cityAqi }: AreaRankingChartProps) {
                     <span className="truncate text-xs font-medium">
                       {area.name}
                     </span>
-                    <span className="shrink-0 font-mono text-xs tabular-nums">
+                    <span className="shrink-0 text-xs tabular-nums">
                       {area.aqi}
                       <span className="ml-2 text-[10px] text-muted-foreground">
                         {delta > 0 ? `+${delta}` : delta < 0 ? `${delta}` : "±0"}
@@ -194,7 +194,7 @@ export function AreaRankingChart({ areas, cityAqi }: AreaRankingChartProps) {
         </ul>
       </div>
 
-      <p className="font-mono text-[10px] text-muted-foreground">
+      <p className="text-[10px] text-muted-foreground">
         <span className="mr-1 inline-block h-px w-4 border-t border-dashed border-foreground/35 align-middle" />
         City average · AQI {cityAqi}
       </p>
