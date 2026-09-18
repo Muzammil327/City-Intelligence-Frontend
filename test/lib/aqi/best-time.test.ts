@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { bestOutsideWindow } from "./best-time";
-import type { ForecastPoint } from "./types";
+import { bestOutsideWindow } from "@/lib/aqi/best-time";
+import type { ForecastPoint } from "@/lib/aqi/types";
 
 const HOUR_MS = 60 * 60 * 1000;
 const START = Date.parse("2026-09-18T06:00:00Z");

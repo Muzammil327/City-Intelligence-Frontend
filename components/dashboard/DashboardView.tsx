@@ -30,6 +30,7 @@ import {
   TrendPanel,
 } from "@/components/dashboard";
 import { PlanningPanel } from "@/components/planning/PlanningPanel";
+import { ReferenceStationsPanel } from "@/components/station/ReferenceStationsPanel";
 import { StationMapPanel } from "@/components/station/StationMapPanel";
 import { StationPanel } from "@/components/station/StationPanel";
 import { Reveal, RevealGroup } from "@/components/common/Reveal";
@@ -42,6 +43,7 @@ import {
   fetchAreas,
   fetchCurrentReading,
   fetchForecast,
+  fetchForecastAccuracy,
   fetchHistory,
 } from "@/lib/aqi/api";
 import { generateAlerts } from "@/lib/aqi/alerts";
@@ -147,6 +149,15 @@ export function DashboardView() {
   const forecastQuery = useQuery({
     queryKey: aqiQueryKeys.forecast(FORECAST_HORIZON_HOURS),
     queryFn: () => fetchForecast(FORECAST_HORIZON_HOURS),
+    retry: false,
+  });
+
+  // Hindcast skill. `retry: false` because the common failure is a thin store
+  // — there is genuinely nothing to measure yet — and retrying refits the
+  // model for the same answer.
+  const accuracyQuery = useQuery({
+    queryKey: aqiQueryKeys.accuracy(FORECAST_HORIZON_HOURS),
+    queryFn: () => fetchForecastAccuracy(FORECAST_HORIZON_HOURS),
     retry: false,
   });
 
@@ -336,6 +347,7 @@ export function DashboardView() {
                   bestWindow={bestWindow}
                   forecast={forecastPoints}
                   history={readings}
+                  accuracy={accuracyQuery.data ?? null}
                   alerts={alerts}
                   onNavigate={setActiveTab}
                 />
@@ -368,6 +380,9 @@ export function DashboardView() {
             </Reveal>
             <Reveal>
               <StationPanel />
+            </Reveal>
+            <Reveal>
+              <ReferenceStationsPanel />
             </Reveal>
           </RevealGroup>
         </TabsContent>

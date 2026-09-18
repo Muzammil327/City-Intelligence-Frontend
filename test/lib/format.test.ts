@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { DISPLAY_TIME_ZONE } from "./config";
-import { formatDateTime, formatHour } from "./format";
+import { DISPLAY_TIME_ZONE } from "@/lib/config";
+import { formatDateTime, formatHour } from "@/lib/format";
 
 /**
  * The suite runs under TZ=America/New_York (see vitest.setup.ts). Asia/Karachi

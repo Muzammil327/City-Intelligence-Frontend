@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { generateAlerts } from "./alerts";
+import { generateAlerts } from "@/lib/aqi/alerts";
 import type {
   AreaReading,
   CurrentReading,
   ForecastPoint,
   HistoryPoint,
   OverallSummary,
-} from "./types";
-import type { AlertSeverity } from "./alerts";
+} from "@/lib/aqi/types";
+import type { AlertSeverity } from "@/lib/aqi/alerts";
 
 const CURRENT: CurrentReading = {
   city: "Lahore",

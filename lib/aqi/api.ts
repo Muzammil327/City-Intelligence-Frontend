@@ -20,8 +20,10 @@ import {
 import type {
   AreasResponse,
   CurrentReading,
+  ForecastAccuracy,
   ForecastResponse,
   HistoryResponse,
+  StationsResponse,
 } from "./types";
 
 /**
@@ -33,6 +35,26 @@ const client = axios.create({
   timeout: REQUEST_TIMEOUT_MS,
   headers: { Accept: "application/json" },
 });
+
+/**
+ * A failed request, carrying the status so callers can tell the difference
+ * between "try again" and "stop asking".
+ */
+export class ApiError extends Error {
+  /** Undefined when nothing answered — a network failure or a blocked origin. */
+  readonly status: number | undefined;
+
+  constructor(message: string, status: number | undefined) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+/** Retrying a rate-limited request is how a client makes its own problem worse. */
+export function isRateLimited(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 429;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -92,7 +114,8 @@ async function apiFetch<T>(
     const { data } = await client.get<T>(path, { params });
     return data;
   } catch (error) {
-    throw new Error(requestFailureMessage(path, error));
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    throw new ApiError(requestFailureMessage(path, error), status);
   }
 }
 
@@ -115,6 +138,9 @@ export const aqiQueryKeys = {
   history: (hours?: number) => [...aqiQueryKeys.all, "history", hours] as const,
   forecast: (hours?: number) => [...aqiQueryKeys.all, "forecast", hours] as const,
   areas: () => [...aqiQueryKeys.all, "areas"] as const,
+  stations: () => [...aqiQueryKeys.all, "stations"] as const,
+  accuracy: (hours?: number) =>
+    [...aqiQueryKeys.all, "accuracy", hours] as const,
 };
 
 /** Current AQI, concentrations, and weather. */
@@ -145,6 +171,26 @@ export function fetchHistory(hours: number): Promise<HistoryResponse> {
  */
 export function fetchForecast(hours: number): Promise<ForecastResponse> {
   return apiFetch<ForecastResponse>("/forecast", { hours });
+}
+
+/**
+ * How close the model's predictions were to what actually happened.
+ *
+ * Fails legitimately on a thin store — scoring N hours needs the training
+ * minimum *plus* N, so early on there is simply nothing to measure.
+ */
+export function fetchForecastAccuracy(hours: number): Promise<ForecastAccuracy> {
+  return apiFetch<ForecastAccuracy>("/forecast/accuracy", { hours });
+}
+
+/**
+ * Physical monitoring stations reported for the city.
+ *
+ * An empty list is a valid answer, not a failure: WAQI lists no active station
+ * in Lahore, which is the reason the neighbourhood feed is model-derived.
+ */
+export function fetchStations(): Promise<StationsResponse> {
+  return apiFetch<StationsResponse>("/stations");
 }
 
 /** Neighbourhood readings plus the representative city summary. */

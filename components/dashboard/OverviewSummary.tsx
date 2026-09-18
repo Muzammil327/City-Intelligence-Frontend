@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import {
   ArrowRight,
   Droplets,
+  Target,
   Thermometer,
   Wind,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import { getSeverityBand } from "@/lib/aqi/severity";
 import type {
   AreaReading,
   CurrentReading,
+  ForecastAccuracy,
   ForecastPoint,
   HistoryPoint,
   OverallSummary,
@@ -48,6 +50,8 @@ interface OverviewSummaryProps {
   forecast: ForecastPoint[];
   /** Observed hours, for the 24-hour shape under the hero. */
   history: HistoryPoint[];
+  /** Out-of-sample model skill, or null while it loads or cannot be measured. */
+  accuracy: ForecastAccuracy | null;
   alerts: AqiAlert[];
   /** Navigate to a tab when a summary card is clicked. */
   onNavigate: (tab: string) => void;
@@ -108,6 +112,7 @@ export function OverviewSummary({
   bestWindow,
   forecast,
   history,
+  accuracy,
   alerts,
   onNavigate,
 }: OverviewSummaryProps) {
@@ -234,6 +239,27 @@ export function OverviewSummary({
                     weather?.humidityPct != null
                       ? `${Math.round(weather.humidityPct)}%`
                       : "—"
+                  }
+                />
+                {/*
+                  The model reporting its own out-of-sample error, beside the
+                  readings it is predicting from. A forecast that never says
+                  how wrong it usually is asks to be taken on trust.
+                */}
+                <Metric
+                  icon={<Target className="size-4" aria-hidden="true" />}
+                  label="Model accuracy"
+                  value={
+                    accuracy != null ? (
+                      <>
+                        {Math.round(accuracy.bandAccuracyPct)}%
+                        <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                          ±{accuracy.meanAbsoluteError} AQI
+                        </span>
+                      </>
+                    ) : (
+                      "—"
+                    )
                   }
                 />
                 <Metric

@@ -123,6 +123,66 @@ export interface ForecastResponse {
   points: ForecastPoint[];
 }
 
+/** One predicted hour set against the observation that actually followed. */
+export interface ForecastAccuracyPoint {
+  /** ISO-8601 UTC timestamp. */
+  predictedFor: string;
+  hoursAhead: number;
+  predictedAqi: number;
+  observedAqi: number;
+  /** predicted − observed. Positive means the model ran high. */
+  error: number;
+  predictedCategory: string;
+  observedCategory: string;
+}
+
+/**
+ * GET /forecast/accuracy — out-of-sample skill, unlike `ForecastResponse.r2Score`.
+ *
+ * The model is refit without the most recent hours and then scored against
+ * them. Weather over the scored window is carried forward rather than taken
+ * from the observations, so these figures never assume perfect foresight.
+ */
+export interface ForecastAccuracy {
+  city: string;
+  model: string;
+  /** Hours actually scored, which may be fewer than requested. */
+  horizonHours: number;
+  trainingSamples: number;
+  evaluatedFrom: string;
+  /** Average miss, in AQI points. */
+  meanAbsoluteError: number;
+  rootMeanSquareError: number;
+  /** Share of hours landing in the correct EPA category. */
+  bandAccuracyPct: number;
+  points: ForecastAccuracyPoint[];
+}
+
+/**
+ * A physical monitoring station, from GET /stations.
+ *
+ * Deliberately thinner than `AreaReading`: a station reports an index and
+ * little else, and everything past `longitude` is nullable because a listed
+ * station may not currently be reporting at all.
+ */
+export interface Station {
+  uid: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  aqi: number | null;
+  category: string | null;
+  /** ISO-8601 UTC timestamp, or null when the station has no reading. */
+  observedAt: string | null;
+}
+
+/** GET /stations. */
+export interface StationsResponse {
+  city: string;
+  count: number;
+  stations: Station[];
+}
+
 /** One neighbourhood's current air, from GET /areas. */
 export interface AreaReading {
   uid: string;

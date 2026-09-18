@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aqiFromPm25 } from "./pm25";
+import { aqiFromPm25 } from "@/lib/aqi/pm25";
 import {
   MITIGATION_MEASURES,
   clampIntensity,
@@ -10,8 +10,8 @@ import {
   projectPm25,
   projectedAreaReading,
   totalReductionPct,
-} from "./scenarios";
-import type { AreaReading } from "./types";
+} from "@/lib/aqi/scenarios";
+import type { AreaReading } from "@/lib/aqi/types";
 
 function area(uid: string, pm25: number, name = uid): AreaReading {
   return {

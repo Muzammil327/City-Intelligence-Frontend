@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { getSeverityBand, MAX_AQI, SEVERITY_BANDS } from "./severity";
-import type { SeverityId } from "./severity";
+import { getSeverityBand, MAX_AQI, SEVERITY_BANDS } from "@/lib/aqi/severity";
+import type { SeverityId } from "@/lib/aqi/severity";
 
 describe("SEVERITY_BANDS", () => {
   it("starts at zero and ends at the top of the scale", () => {

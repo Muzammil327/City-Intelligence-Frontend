@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { getSeverityBand, SEVERITY_BANDS } from "@/lib/aqi/severity";
 
-import { AqiBadge } from "./AqiBadge";
+import { AqiBadge } from "@/components/aqi/AqiBadge";
 
 describe("AqiBadge", () => {
   it("names the band in text, so colour is never the only signal", () => {

@@ -75,10 +75,10 @@ export function StationPanel() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Monitoring stations</CardTitle>
+        <CardTitle>Neighbourhood points</CardTitle>
         <CardDescription>
-          One monitoring point per neighbourhood. Filter the list, then pick
-          a station to read its full picture.
+          One model grid point per neighbourhood — not physical sensors. Filter
+          the list, then pick one to read its full picture.
         </CardDescription>
       </CardHeader>
 

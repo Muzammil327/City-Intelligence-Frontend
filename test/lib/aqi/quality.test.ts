@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { qualityFor } from "./quality";
-import type { CurrentReading } from "./types";
+import { qualityFor } from "@/lib/aqi/quality";
+import type { CurrentReading } from "@/lib/aqi/types";
 
 function makeCurrent(overrides: Partial<CurrentReading> = {}): CurrentReading {
   return {

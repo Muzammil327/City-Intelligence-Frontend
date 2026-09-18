@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { DELTA_TOLERANCE, trendOver } from "./trend";
-import type { HistoryPoint } from "./types";
+import { DELTA_TOLERANCE, trendOver } from "@/lib/aqi/trend";
+import type { HistoryPoint } from "@/lib/aqi/types";
 
 const HOUR_MS = 60 * 60 * 1000;
 const START = Date.parse("2026-09-18T06:00:00Z");

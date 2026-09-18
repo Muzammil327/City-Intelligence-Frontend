@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { forecastDirectionLabel, forecastInsights } from "./insights";
-import type { CurrentReading, ForecastPoint, HistoryPoint } from "./types";
+import { forecastDirectionLabel, forecastInsights } from "@/lib/aqi/insights";
+import type {
+  CurrentReading,
+  ForecastPoint,
+  HistoryPoint,
+} from "@/lib/aqi/types";
 
 const NOW = Date.parse("2026-09-18T10:00:00Z");
 

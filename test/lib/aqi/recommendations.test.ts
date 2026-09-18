@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { recommendationsFor } from "./recommendations";
-import type { CurrentReading } from "./types";
-import type { BestWindow } from "./best-time";
-import type { TrendSummary } from "./trend";
+import { recommendationsFor } from "@/lib/aqi/recommendations";
+import type { CurrentReading } from "@/lib/aqi/types";
+import type { BestWindow } from "@/lib/aqi/best-time";
+import type { TrendSummary } from "@/lib/aqi/trend";
 
 const NOW = Date.parse("2026-09-18T10:00:00Z");
 

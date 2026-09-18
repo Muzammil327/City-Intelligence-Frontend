@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aqiFromPm25 } from "./pm25";
+import { aqiFromPm25 } from "@/lib/aqi/pm25";
 
 describe("aqiFromPm25", () => {
   it("maps the cleanest band endpoints exactly", () => {
