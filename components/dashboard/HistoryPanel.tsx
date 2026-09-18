@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { aqiQueryKeys, fetchHistory } from "@/lib/aqi/api";
+import { aqiQueryKeys, failureMessage, fetchHistory } from "@/lib/aqi/api";
 import { getSeverityBand } from "@/lib/aqi/severity";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -83,7 +83,10 @@ export function HistoryPanel() {
         ) : historyQuery.isError ? (
           <ErrorState
             title="History unavailable"
-            description="The historical readings could not be loaded."
+            description={failureMessage(
+              historyQuery.error,
+              "The historical readings could not be loaded.",
+            )}
             onRetry={() => void historyQuery.refetch()}
           />
         ) : historyQuery.data && historyQuery.data.readings.length === 0 ? (
