@@ -80,12 +80,17 @@ const areasConfig: Array<{
   pm25Bump: number;
   windBump: number;
 }> = [
-  { uid: "gulberg", name: "Gulberg", latitude: 31.519, longitude: 74.357, pm25Bump: 3.5, windBump: 0.2 },
-  { uid: "model-town", name: "Model Town", latitude: 31.487, longitude: 74.322, pm25Bump: 1.2, windBump: -0.3 },
-  { uid: "johar-town", name: "Johar Town", latitude: 31.47, longitude: 74.273, pm25Bump: 0.8, windBump: -0.1 },
-  { uid: "dha", name: "DHA", latitude: 31.47, longitude: 74.41, pm25Bump: -2.4, windBump: 0.6 },
-  { uid: "shahdara", name: "Shahdara", latitude: 31.612, longitude: 74.31, pm25Bump: 6.2, windBump: 0.9 },
-  { uid: "wagah", name: "Wagah Border", latitude: 31.604, longitude: 74.573, pm25Bump: -4.8, windBump: -0.7 },
+  // The bumps spread the six points across four EPA bands rather than
+  // clustering them in one, so ranking, severity colour and the band split are
+  // all legible in the sample. The ordering is geographic sense, not invention:
+  // Shahdara sits north across the Ravi near the industrial belt, Wagah is
+  // rural outskirts. No area is placed in "Good" — Lahore does not have one.
+  { uid: "gulberg", name: "Gulberg", latitude: 31.519, longitude: 74.357, pm25Bump: 51.6, windBump: 0.2 },
+  { uid: "model-town", name: "Model Town", latitude: 31.487, longitude: 74.322, pm25Bump: 2.1, windBump: -0.3 },
+  { uid: "johar-town", name: "Johar Town", latitude: 31.47, longitude: 74.273, pm25Bump: -18.4, windBump: -0.1 },
+  { uid: "dha", name: "DHA", latitude: 31.47, longitude: 74.41, pm25Bump: -26.4, windBump: 0.6 },
+  { uid: "shahdara", name: "Shahdara", latitude: 31.612, longitude: 74.31, pm25Bump: 98.6, windBump: 0.9 },
+  { uid: "wagah", name: "Wagah Border", latitude: 31.604, longitude: 74.573, pm25Bump: -41.4, windBump: -0.7 },
 ];
 
 const CURRENT_PM25 = 69.4;

@@ -5,7 +5,6 @@ import {
   BarChart3,
   Bell,
   Flame,
-  FlaskConical,
   HeartPulse,
   History,
   LayoutDashboard,
@@ -83,12 +82,8 @@ const TABS = [
   {
     value: "hotspots",
     label: "Hotspots",
-    description: "The neighbourhoods with the worst air right now.",
-  },
-  {
-    value: "pollutants",
-    label: "Pollutants",
-    description: "Which species are pushing the index up right now.",
+    description:
+      "The neighbourhoods with the worst air, and which species are driving it.",
   },
   {
     value: "guidance",
@@ -122,7 +117,6 @@ const TAB_ICONS = {
   trend: TrendingUp,
   stations: MapPin,
   hotspots: Flame,
-  pollutants: FlaskConical,
   guidance: HeartPulse,
   alerts: Bell,
   compare: BarChart3,
@@ -383,11 +377,6 @@ export function DashboardView() {
                 "Area readings could not be loaded.",
               )}
             </Reveal>
-          </RevealGroup>
-        </TabsContent>
-
-        <TabsContent value="pollutants" className="pt-0">
-          <RevealGroup className="space-y-6">
             <Reveal>
               {current ? (
                 <PollutantMixCard
