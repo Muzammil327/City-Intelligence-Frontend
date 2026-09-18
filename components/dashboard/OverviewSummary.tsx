@@ -288,12 +288,36 @@ export function OverviewSummary({
                 points={historyPoints}
                 accent={getSeverityBand(overall.aqi).colorVar}
                 labelFormatter={formatHour}
-                className="h-12 w-full"
+                className="h-36 w-full"
                 label={`Observed city AQI over the last ${historyPoints.length} hours.`}
               />
             ) : null
           }
           target="compare"
+          onNavigate={onNavigate}
+        />
+
+        <SummaryStat
+          label="Top hotspot"
+          value={worst != null ? worst.name : "—"}
+          valueDetail={
+            worst != null ? <AqiBadge aqi={worst.aqi} /> : null
+          }
+          detail={
+            worst != null
+              ? `Highest of ${hotspots.length} neighbourhood points`
+              : "No area readings yet"
+          }
+          chart={
+            areas != null && areas.length > 0 ? (
+              <SeverityDonut
+                areas={areas}
+                showLegend={false}
+                className="h-36 w-full"
+              />
+            ) : null
+          }
+          target="hotspots"
           onNavigate={onNavigate}
         />
 
@@ -326,30 +350,6 @@ export function OverviewSummary({
             ) : null
           }
           target="guidance"
-          onNavigate={onNavigate}
-        />
-
-        <SummaryStat
-          label="Top hotspot"
-          value={worst != null ? worst.name : "—"}
-          valueDetail={
-            worst != null ? <AqiBadge aqi={worst.aqi} /> : null
-          }
-          detail={
-            worst != null
-              ? `Highest of ${hotspots.length} neighbourhood points`
-              : "No area readings yet"
-          }
-          chart={
-            areas != null && areas.length > 0 ? (
-              <SeverityDonut
-                areas={areas}
-                showLegend={false}
-                className="h-20 w-full"
-              />
-            ) : null
-          }
-          target="hotspots"
           onNavigate={onNavigate}
         />
 
