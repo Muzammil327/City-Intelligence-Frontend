@@ -1,26 +1,326 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+/* ---------------------------------------------------------------------------
+   Air-quality severity tokens.
+
+   The six US EPA AQI bands. These are the only place a severity colour is
+   written down; components reference the token, never the value. Swapping to a
+   different national AQI scale means editing this block and the breakpoint
+   table in `lib/aqi/severity.ts` — nothing else.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --aqi-good: #00e400;
+  --aqi-good-foreground: #062d06;
+  --aqi-moderate: #ffff00;
+  --aqi-moderate-foreground: #2e2e00;
+  --aqi-sensitive: #ff7e00;
+  --aqi-sensitive-foreground: #331900;
+  --aqi-unhealthy: #ff0000;
+  --aqi-unhealthy-foreground: #ffffff;
+  --aqi-very-unhealthy: #8f3f97;
+  --aqi-very-unhealthy-foreground: #ffffff;
+  --aqi-hazardous: #7e0023;
+  --aqi-hazardous-foreground: #ffffff;
+}
+
+.dark {
+  --aqi-good: #2fbf2f;
+  --aqi-good-foreground: #042404;
+  --aqi-moderate: #d6c522;
+  --aqi-moderate-foreground: #262100;
+  --aqi-sensitive: #e07316;
+  --aqi-sensitive-foreground: #2b1400;
+  --aqi-unhealthy: #e03131;
+  --aqi-unhealthy-foreground: #ffffff;
+  --aqi-very-unhealthy: #9b51a3;
+  --aqi-very-unhealthy-foreground: #ffffff;
+  --aqi-hazardous: #a01b3d;
+  --aqi-hazardous-foreground: #ffffff;
+}
+
+@theme inline {
+  --color-aqi-good: var(--aqi-good);
+  --color-aqi-good-foreground: var(--aqi-good-foreground);
+  --color-aqi-moderate: var(--aqi-moderate);
+  --color-aqi-moderate-foreground: var(--aqi-moderate-foreground);
+  --color-aqi-sensitive: var(--aqi-sensitive);
+  --color-aqi-sensitive-foreground: var(--aqi-sensitive-foreground);
+  --color-aqi-unhealthy: var(--aqi-unhealthy);
+  --color-aqi-unhealthy-foreground: var(--aqi-unhealthy-foreground);
+  --color-aqi-very-unhealthy: var(--aqi-very-unhealthy);
+  --color-aqi-very-unhealthy-foreground: var(--aqi-very-unhealthy-foreground);
+  --color-aqi-hazardous: var(--aqi-hazardous);
+  --color-aqi-hazardous-foreground: var(--aqi-hazardous-foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   Glass surface system.
+
+   The dashboard is a dark, layered interface: a tinted ground, an aurora wash
+   behind everything, and frosted panels floating over it. Every translucent
+   surface reads these tokens — a component never writes an rgba() of its own.
+
+   Opacity is deliberately high (not the 5% you see in glassmorphism demos).
+   Body text sits on these panels, and a surface transparent enough to look
+   impressive is transparent enough to drop text under WCAG AA.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --glass-bg: oklch(0.99 0 0 / 65%);
+  /* Opaque twin of --glass-bg, for when blur is off and the surface has
+     to carry text on its own. */
+  --glass-bg-solid: oklch(0.99 0 0);
+  --glass-border: oklch(0.2 0 0 / 10%);
+  --glass-highlight: oklch(1 0 0 / 70%);
+  --glass-shadow: 0 1px 2px oklch(0.2 0 0 / 6%), 0 8px 24px oklch(0.2 0 0 / 8%);
+  --glass-blur: 16px;
+
+  /* Motion. One scale, so nothing invents its own timing. */
+  --motion-fast: 140ms;
+  --motion-base: 260ms;
+  --motion-slow: 520ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark {
+  /* A near-black ground with a trace of blue, so the warm AQI palette reads
+     as warm against it rather than muddy. */
+  --background: oklch(0.155 0.012 275);
+  --card: oklch(0.205 0.012 275 / 55%);
+  --popover: oklch(0.21 0.012 275);
+  --muted: oklch(0.26 0.01 275);
+  --muted-foreground: oklch(0.72 0.012 275);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 12%);
+
+  --glass-bg: oklch(0.235 0.013 275 / 55%);
+  --glass-bg-solid: oklch(0.225 0.013 275);
+  --glass-border: oklch(1 0 0 / 9%);
+  --glass-highlight: oklch(1 0 0 / 16%);
+  --glass-shadow: 0 1px 0 oklch(1 0 0 / 4%) inset,
+    0 12px 40px oklch(0.05 0 0 / 45%);
+}
+
+/* The ground the glass sits on. Fixed, so scrolling moves the panels over a
+   stationary wash rather than dragging the gradient with them. */
+body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      60rem 40rem at 12% -8%,
+      oklch(0.62 0.17 35 / 12%),
+      transparent 60%
+    ),
+    radial-gradient(
+      52rem 34rem at 92% 4%,
+      oklch(0.55 0.16 305 / 10%),
+      transparent 60%
+    ),
+    radial-gradient(
+      70rem 46rem at 50% 112%,
+      oklch(0.58 0.13 240 / 9%),
+      transparent 62%
+    );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Every shadcn Card becomes a frosted panel. Styling the data-slot here rather
+   than editing `components/ui/card.tsx` keeps the generated file untouched,
+   which is the rule in `.claude/stack.md`. Unlayered, so it wins over the
+   utility classes the component already carries. */
+[data-slot="card"] {
+  background-color: var(--glass-bg);
+  background-image: linear-gradient(
+    to bottom,
+    var(--glass-highlight),
+    transparent 40%
+  );
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* The tab bar is the one other surface that floats. */
+[data-slot="tabs-list"] {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* The active pill is drawn by a shared-layout element in `DashboardView`, so
+   the trigger's own active background would double it up. */
+[data-slot="tabs-trigger"][data-active] {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Blur is GPU work per painted frame. Over a moving map or an animating chart
+   it costs more than it gives, so those opt out. */
+[data-glass="off"] {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: var(--glass-bg-solid);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  [data-slot="card"],
+  [data-slot="tabs-list"] {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: var(--glass-bg-solid);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Motion is opt-in to the viewer. Framer Motion honours this through
+   MotionConfig; this covers the CSS transitions it does not drive. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* The `line` tab variant draws an underline under the active trigger via an
+   ::after bar. The sliding pill already marks which tab is active, so the bar
+   is a second indicator saying the same thing — and it reads as a stray white
+   line against the glass. */
+[data-slot="tabs-trigger"]::after {
+  display: none;
 }
