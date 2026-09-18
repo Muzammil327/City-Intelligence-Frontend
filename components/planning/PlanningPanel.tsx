@@ -215,7 +215,9 @@ export function PlanningPanel() {
 
           <AreaRankingChart
             areas={projectedAreas}
-            cityAqi={result.overall.projectedAqi}
+            metric="aqi"
+            reference={result.overall.projectedAqi}
+            referenceLabel="city average"
           />
 
           {bestPossible ? (

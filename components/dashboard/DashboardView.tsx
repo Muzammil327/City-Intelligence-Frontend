@@ -197,8 +197,10 @@ export function DashboardView() {
 
   const activeTabMeta =
     TABS.find((tab) => tab.value === activeTab) ?? TABS[0];
-  const activeTitle = activeTabMeta.headerTitle ?? activeTabMeta.label;
-  const activeDescription = activeTabMeta.description ?? null;
+  const activeTitle =
+    "headerTitle" in activeTabMeta ? activeTabMeta.headerTitle : activeTabMeta.label;
+  const activeDescription =
+    "description" in activeTabMeta ? activeTabMeta.description : null;
 
   const areasBlock = (fallbackTitle: string, fallbackDesc: string) =>
     areasQuery.isPending ? (

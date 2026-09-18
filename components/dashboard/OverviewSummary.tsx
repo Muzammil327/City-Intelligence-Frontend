@@ -4,7 +4,6 @@ import { motion } from "motion/react";
 import {
   ArrowRight,
   Droplets,
-  Navigation,
   Thermometer,
   Wind,
 } from "lucide-react";
@@ -242,49 +241,31 @@ export function OverviewSummary({
                   label="Wind"
                   value={
                     weather?.windSpeedMs != null
-                      ? `${weather.windSpeedMs.toFixed(1)} m/s`
+                      ? `${weather.windSpeedMs.toFixed(1)} m/s${
+                          windDirection ? ` ${windDirection}` : ""
+                        }`
                       : "—"
-                  }
-                />
-                <Metric
-                  icon={<Navigation className="size-4" aria-hidden="true" />}
-                  label="Bearing"
-                  value={
-                    windDirection ??
-                    (weather?.windDirectionDeg != null
-                      ? `${Math.round(weather.windDirectionDeg)}°`
-                      : "—")
                   }
                 />
               </motion.dl>
             </div>
+
+            {/*
+              The headline says what the air is *now*; it cannot say whether
+              that is rising. The full read, with the observed/predicted split
+              spelled out, stays on the Trends tab — this is its shape.
+            */}
+            {historyPoints.length > 1 ? (
+              <div className="mt-6 border-t border-white/5 pt-4">
+                <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  Last 24 hours
+                </p>
+                <AqiTrendChart history={history} forecast={forecast} />
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </motion.div>
-
-      {/*
-        Overview otherwise only says what the air is *now*. The 24-hour shape
-        is the one thing a headline number cannot carry — whether it is rising.
-        The full read, with the observed/predicted split spelled out, stays on
-        the Trends tab; this is a preview of it.
-      */}
-      {historyPoints.length > 1 ? (
-        <motion.div variants={riseIn}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg tracking-tight">
-                Last 24 hours
-              </CardTitle>
-              <CardDescription>
-                Observed hourly AQI, continuing into the forecast.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AqiTrendChart history={history} forecast={forecast} />
-            </CardContent>
-          </Card>
-        </motion.div>
-      ) : null}
 
       <motion.dl
         variants={stagger}
