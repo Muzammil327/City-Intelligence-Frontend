@@ -5,9 +5,8 @@
  * generator, so the wire shapes match `./types` field for field and no mapping
  * layer sits between them.
  *
- * Migration in progress — `/current`, `/history` and `/areas` are live against
- * the API; `/forecast` is the last one still returning bundled sample data.
- * `demo-data.ts` goes with it.
+ * All four endpoints are live against the API — nothing here returns sample
+ * data any more.
  */
 
 import axios from "axios";
@@ -18,7 +17,6 @@ import {
   REQUEST_TIMEOUT_MS,
 } from "@/lib/config";
 
-import { demoData } from "./demo-data";
 import type {
   AreasResponse,
   CurrentReading,
@@ -119,11 +117,6 @@ export const aqiQueryKeys = {
   areas: () => [...aqiQueryKeys.all, "areas"] as const,
 };
 
-/** Tiny simulated latency so the loading states are visible on first mount. */
-function after<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), 180));
-}
-
 /** Current AQI, concentrations, and weather. */
 export function fetchCurrentReading(): Promise<CurrentReading> {
   return apiFetch<CurrentReading>("/current");
@@ -143,14 +136,15 @@ export function fetchHistory(hours: number): Promise<HistoryResponse> {
   });
 }
 
-/** The model's hourly predictions over the horizon (sample values). */
+/**
+ * The model's hourly predictions over the horizon.
+ *
+ * This one can fail legitimately: the backend refits its ridge model per call
+ * and refuses below `MIN_TRAINING_SAMPLES` stored readings. Callers treat an
+ * error here as "no forecast yet", not as a broken page.
+ */
 export function fetchForecast(hours: number): Promise<ForecastResponse> {
-  const points = demoData.forecast.points.slice(0, hours);
-  return after({
-    ...demoData.forecast,
-    horizonHours: hours,
-    points,
-  });
+  return apiFetch<ForecastResponse>("/forecast", { hours });
 }
 
 /** Neighbourhood readings plus the representative city summary. */
