@@ -35,7 +35,6 @@ import {
   fetchAreas,
   fetchCurrentReading,
   fetchForecast,
-  fetchForecastAccuracy,
   fetchHistory,
 } from "@/lib/aqi/api";
 import { generateAlerts } from "@/lib/aqi/alerts";
@@ -109,15 +108,6 @@ export function DashboardView() {
   const forecastQuery = useQuery({
     queryKey: aqiQueryKeys.forecast(FORECAST_HORIZON_HOURS),
     queryFn: () => fetchForecast(FORECAST_HORIZON_HOURS),
-    retry: false,
-  });
-
-  // Hindcast skill. `retry: false` because the common failure is a thin store
-  // — there is genuinely nothing to measure yet — and retrying refits the
-  // model for the same answer.
-  const accuracyQuery = useQuery({
-    queryKey: aqiQueryKeys.accuracy(FORECAST_HORIZON_HOURS),
-    queryFn: () => fetchForecastAccuracy(FORECAST_HORIZON_HOURS),
     retry: false,
   });
 
@@ -258,7 +248,6 @@ export function DashboardView() {
                   bestWindow={bestWindow}
                   forecast={forecastPoints}
                   history={readings}
-                  accuracy={accuracyQuery.data ?? null}
                   alerts={alerts}
                   onNavigate={handleTabChange}
                 />
@@ -271,6 +260,13 @@ export function DashboardView() {
               ) : (
                 <Skeleton className="h-64 w-full rounded-lg" />
               )}
+            </Reveal>
+            <Reveal>
+              <RecommendationsPanel
+                currentAqi={current?.aqi ?? null}
+                forecast={forecastPoints}
+                bestWindow={bestWindow}
+              />
             </Reveal>
           </RevealGroup>
         </TabsContent>
@@ -315,18 +311,6 @@ export function DashboardView() {
               ) : currentQuery.isPending ? (
                 <Skeleton className="h-72 w-full rounded-lg" />
               ) : null}
-            </Reveal>
-          </RevealGroup>
-        </TabsContent>
-
-        <TabsContent value="guidance" className="pt-0">
-          <RevealGroup className="space-y-6">
-            <Reveal>
-              <RecommendationsPanel
-                currentAqi={current?.aqi ?? null}
-                forecast={forecastPoints}
-                bestWindow={bestWindow}
-              />
             </Reveal>
           </RevealGroup>
         </TabsContent>

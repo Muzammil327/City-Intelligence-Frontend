@@ -3,7 +3,6 @@ import {
   Bell,
   Flame,
   Gauge,
-  HeartPulse,
   History,
   LayoutDashboard,
   MapPin,
@@ -17,10 +16,10 @@ import type { MessageKey } from "@/lib/i18n/messages";
 /**
  * The dashboard's views, in nav order.
  *
- * Overview is a summary only — one headline and four cards that point at the
- * tab holding that subject's depth: how it changes (Trends), where exactly
- * (Map), what it means for you (Guidance), the raw numbers (Compare), and what
- * could change it (Plan).
+ * Overview is a summary plus today's guidance — one headline, the summary
+ * tiles and the recommendations panel. The other tabs hold each subject's
+ * depth: how it changes (Trends), where exactly (Map), the raw numbers
+ * (Compare), and what could change it (Plan).
  *
  * `headerTitleKey` overrides the page heading for a view whose nav label reads
  * differently at the top of the page; `descriptionKey` is the line under it.
@@ -61,11 +60,6 @@ export const TABS: readonly DashboardTab[] = [
     descriptionKey: "tabs.hotspots.description",
   },
   {
-    value: "guidance",
-    labelKey: "tabs.guidance.label",
-    descriptionKey: "tabs.guidance.description",
-  },
-  {
     value: "alerts",
     labelKey: "tabs.alerts.label",
     descriptionKey: "tabs.alerts.description",
@@ -97,7 +91,6 @@ export const TAB_ICONS: Record<string, LucideIcon> = {
   trend: TrendingUp,
   stations: MapPin,
   hotspots: Flame,
-  guidance: HeartPulse,
   alerts: Bell,
   compare: BarChart3,
   history: History,

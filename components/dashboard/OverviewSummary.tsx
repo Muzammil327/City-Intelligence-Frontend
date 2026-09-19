@@ -3,8 +3,11 @@
 import { motion } from "motion/react";
 import {
   ArrowRight,
+  Bell,
+  Clock,
   Droplets,
-  Target,
+  Flame,
+  Gauge,
   Thermometer,
   Wind,
 } from "lucide-react";
@@ -13,8 +16,6 @@ import { useMemo, type ReactNode } from "react";
 import { AqiBadge } from "@/components/aqi/AqiBadge";
 import { AqiGauge } from "@/components/aqi/AqiGauge";
 import { AqiTrendChart } from "@/components/charts/AqiTrendChart";
-import { SeverityDonut } from "@/components/charts/SeverityDonut";
-import { Sparkline } from "@/components/charts/Sparkline";
 import { QualityIndicator } from "@/components/dashboard/QualityIndicator";
 import {
   Card,
@@ -31,12 +32,11 @@ import { getSeverityBand } from "@/lib/aqi/severity";
 import type {
   AreaReading,
   CurrentReading,
-  ForecastAccuracy,
   ForecastPoint,
   HistoryPoint,
   OverallSummary,
 } from "@/lib/aqi/types";
-import { formatHour, formatTime, partOfDay } from "@/lib/format";
+import { formatTime, partOfDay } from "@/lib/format";
 import { riseIn, stagger } from "@/lib/motion";
 import { compassDirection } from "@/lib/format";
 
@@ -50,15 +50,13 @@ interface OverviewSummaryProps {
   forecast: ForecastPoint[];
   /** Observed hours, for the 24-hour shape under the hero. */
   history: HistoryPoint[];
-  /** Out-of-sample model skill, or null while it loads or cannot be measured. */
-  accuracy: ForecastAccuracy | null;
   alerts: AqiAlert[];
-  /** Navigate to a tab when a summary card is clicked. */
+  /** Navigate to a tab from a summary tile's arrow. */
   onNavigate: (tab: string) => void;
 }
 
 /**
- * The tile surface the hero is built from. The gauge and the six readouts sit
+ * The tile surface the hero is built from. The gauge and the nine readouts sit
  * on the same one, so the row reads as a single grid rather than a loose
  * number beside a set of cards.
  */
@@ -68,10 +66,16 @@ function Metric({
   icon,
   label,
   value,
+  detail,
+  aside,
 }: {
   icon: ReactNode;
   label: string;
   value: ReactNode;
+  /** One short line under the value — a time range, a count, a scope. */
+  detail?: ReactNode;
+  /** Rides the top row opposite the icon: a severity badge, a tab arrow. */
+  aside?: ReactNode;
 }) {
   return (
     <motion.div
@@ -81,28 +85,64 @@ function Metric({
         "flex min-h-28 flex-col justify-between gap-3 p-4",
       )}
     >
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/5 text-muted-foreground"
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
+      <div className="flex items-start justify-between gap-2">
+        <span
+          className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/5 text-muted-foreground"
+          aria-hidden="true"
+        >
+          {icon}
+        </span>
+        {aside ? (
+          <div className="flex min-w-0 items-center gap-2">{aside}</div>
+        ) : null}
+      </div>
       <div className="min-w-0">
         <dt className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
           {label}
         </dt>
-        <dd className="text-2xl font-semibold tabular-nums leading-tight">
-          {value}
+        <dd className="min-w-0">
+          <span className="block truncate text-2xl font-semibold tabular-nums leading-tight">
+            {value}
+          </span>
+          {detail ? (
+            <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+              {detail}
+            </span>
+          ) : null}
         </dd>
       </div>
     </motion.div>
   );
 }
 
+/** The arrow that takes a summary tile to the tab holding its full treatment. */
+function TabLink({
+  target,
+  label,
+  onNavigate,
+}: {
+  target: string;
+  label: string;
+  onNavigate: (tab: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`Open ${label} tab`}
+      onClick={() => onNavigate(target)}
+      className="flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+    >
+      <ArrowRight aria-hidden="true" className="size-3.5" />
+    </button>
+  );
+}
+
 /**
- * The Overview is a summary on purpose: the current AQI as a headline, and
- * four clickable cards that each point at the tab holding that subject's full
- * treatment. No deep panel lives here — detail is one click away.
+ * The Overview is a summary on purpose: the current AQI as a headline beside
+ * nine readouts — the live concentrations and weather, then the city summary,
+ * worst area, best outdoor window and alert count, each with an arrow to the
+ * tab holding its full treatment. No deep panel lives here, and no chart is
+ * drawn twice: the 24-hour shape appears once, under the tiles.
  */
 export function OverviewSummary({
   current,
@@ -112,7 +152,6 @@ export function OverviewSummary({
   bestWindow,
   forecast,
   history,
-  accuracy,
   alerts,
   onNavigate,
 }: OverviewSummaryProps) {
@@ -126,17 +165,6 @@ export function OverviewSummary({
   const weather = current.weather;
   const windDirection = compassDirection(
     weather?.windDirectionDeg ?? null,
-  );
-
-  // The same series `BestTimeCard` plots: sorted ascending, keyed by timestamp.
-  const forecastPoints = useMemo(
-    () =>
-      [...forecast]
-        .sort(
-          (a, b) => Date.parse(a.predictedFor) - Date.parse(b.predictedFor),
-        )
-        .map((point) => ({ key: point.predictedFor, value: point.aqi })),
-    [forecast],
   );
 
   const historyPoints = useMemo(
@@ -241,27 +269,6 @@ export function OverviewSummary({
                       : "—"
                   }
                 />
-                {/*
-                  The model reporting its own out-of-sample error, beside the
-                  readings it is predicting from. A forecast that never says
-                  how wrong it usually is asks to be taken on trust.
-                */}
-                <Metric
-                  icon={<Target className="size-4" aria-hidden="true" />}
-                  label="Model accuracy"
-                  value={
-                    accuracy != null ? (
-                      <>
-                        {Math.round(accuracy.bandAccuracyPct)}%
-                        <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                          ±{accuracy.meanAbsoluteError} AQI
-                        </span>
-                      </>
-                    ) : (
-                      "—"
-                    )
-                  }
-                />
                 <Metric
                   icon={<Wind className="size-4" aria-hidden="true" />}
                   label="Wind"
@@ -271,6 +278,103 @@ export function OverviewSummary({
                           windDirection ? ` ${windDirection}` : ""
                         }`
                       : "—"
+                  }
+                />
+
+                {/*
+                  The four summaries that used to be cards under the chart.
+                  Same values, same tabs behind the arrows — as tiles, so each
+                  number is read once and the 24-hour chart is drawn once.
+                */}
+                <Metric
+                  icon={<Gauge className="size-4" aria-hidden="true" />}
+                  label="Overall AQI"
+                  value={overall != null ? overall.aqi : "—"}
+                  detail={
+                    overall != null
+                      ? `Across ${overall.areasWithData} of ${overall.areaCount} areas`
+                      : "Loading neighbourhood data…"
+                  }
+                  aside={
+                    <>
+                      {overall != null ? <AqiBadge aqi={overall.aqi} /> : null}
+                      <TabLink
+                        target="compare"
+                        label="Compare"
+                        onNavigate={onNavigate}
+                      />
+                    </>
+                  }
+                />
+                <Metric
+                  icon={<Flame className="size-4" aria-hidden="true" />}
+                  label="Top hotspot"
+                  value={worst != null ? worst.name : "—"}
+                  detail={
+                    worst != null
+                      ? `Highest of ${hotspots.length} neighbourhood points`
+                      : "No area readings yet"
+                  }
+                  aside={
+                    <>
+                      {worst != null ? <AqiBadge aqi={worst.aqi} /> : null}
+                      <TabLink
+                        target="hotspots"
+                        label="Hotspots"
+                        onNavigate={onNavigate}
+                      />
+                    </>
+                  }
+                />
+                <Metric
+                  icon={<Clock className="size-4" aria-hidden="true" />}
+                  label="Best outdoor window"
+                  value={bestWindow != null ? bestWindow.averageAqi : "—"}
+                  detail={
+                    bestWindow != null
+                      ? `${formatTime(bestWindow.start)} → ${formatTime(bestWindow.end)} (${bestWindow.hours}h)${
+                          forecastPeak
+                            ? ` · peaks at ${forecastPeak.aqi} ${partOfDay(forecastPeak.predictedFor)}`
+                            : ""
+                        }`
+                      : "No forecast available yet"
+                  }
+                  aside={
+                    bestWindow != null ? (
+                      <AqiBadge aqi={bestWindow.averageAqi} />
+                    ) : null
+                  }
+                />
+                <Metric
+                  icon={<Bell className="size-4" aria-hidden="true" />}
+                  label="Active alerts"
+                  value={
+                    alerts.length > 0 ? (
+                      alerts.length
+                    ) : (
+                      <span className="text-xl font-normal text-muted-foreground">
+                        All clear
+                      </span>
+                    )
+                  }
+                  detail={
+                    worstAlert != null
+                      ? worstAlert.title
+                      : "No thresholds crossed right now"
+                  }
+                  aside={
+                    <>
+                      {worstAlertLabel ? (
+                        <span className="text-xs text-muted-foreground">
+                          {worstAlertLabel}
+                        </span>
+                      ) : null}
+                      <TabLink
+                        target="alerts"
+                        label="Alerts"
+                        onNavigate={onNavigate}
+                      />
+                    </>
                   }
                 />
               </motion.dl>
@@ -293,192 +397,6 @@ export function OverviewSummary({
         </Card>
       </motion.div>
 
-      <motion.dl
-        variants={stagger}
-        initial="hidden"
-        animate="visible"
-        className="grid gap-4 sm:grid-cols-2"
-      >
-        <SummaryStat
-          label="Overall AQI"
-          value={overall != null ? overall.aqi : "—"}
-          valueDetail={overall != null ? <AqiBadge aqi={overall.aqi} /> : null}
-          detail={
-            overall != null
-              ? `Across ${overall.areasWithData} of ${overall.areaCount} areas`
-              : "Loading neighbourhood data…"
-          }
-          chart={
-            overall != null ? (
-              <Sparkline
-                points={historyPoints}
-                accent={getSeverityBand(overall.aqi).colorVar}
-                labelFormatter={formatHour}
-                className="h-36 w-full"
-                label={`Observed city AQI over the last ${historyPoints.length} hours.`}
-              />
-            ) : null
-          }
-          target="compare"
-          onNavigate={onNavigate}
-        />
-
-        <SummaryStat
-          label="Top hotspot"
-          value={worst != null ? worst.name : "—"}
-          valueDetail={
-            worst != null ? <AqiBadge aqi={worst.aqi} /> : null
-          }
-          detail={
-            worst != null
-              ? `Highest of ${hotspots.length} neighbourhood points`
-              : "No area readings yet"
-          }
-          chart={
-            areas != null && areas.length > 0 ? (
-              <SeverityDonut
-                areas={areas}
-                showLegend={false}
-                className="h-36 w-full"
-              />
-            ) : null
-          }
-          target="hotspots"
-          onNavigate={onNavigate}
-        />
-
-        <SummaryStat
-          label="Best outdoor window"
-          value={bestWindow != null ? bestWindow.averageAqi : "—"}
-          valueDetail={
-            bestWindow != null ? (
-              <AqiBadge aqi={bestWindow.averageAqi} />
-            ) : null
-          }
-          detail={
-            bestWindow != null
-              ? `${formatTime(bestWindow.start)} → ${formatTime(bestWindow.end)} (${bestWindow.hours}h)${
-                  forecastPeak
-                    ? ` · peaks at ${forecastPeak.aqi} ${partOfDay(forecastPeak.predictedFor)}`
-                    : ""
-                }`
-              : "No forecast available yet"
-          }
-          chart={
-            bestWindow != null ? (
-              <Sparkline
-                points={forecastPoints}
-                accent={getSeverityBand(bestWindow.averageAqi).colorVar}
-                labelFormatter={formatHour}
-                className="h-12 w-full"
-                label={`Forecast AQI over the next ${forecastPoints.length} hours, averaging ${bestWindow.averageAqi} in the best window.`}
-              />
-            ) : null
-          }
-          target="guidance"
-          onNavigate={onNavigate}
-        />
-
-        <SummaryStat
-          label="Active alerts"
-          value={
-            alerts.length > 0 ? (
-              alerts.length
-            ) : (
-              <span className="text-xl font-normal text-muted-foreground">
-                All clear
-              </span>
-            )
-          }
-          valueDetail={
-            worstAlertLabel ? (
-              <span className="text-xs font-normal text-muted-foreground">
-                {worstAlertLabel}
-              </span>
-            ) : null
-          }
-          detail={
-            alerts.length > 0
-              ? alerts[0]
-                ? alerts[0]!.title
-                : "Thresholds crossed"
-              : "No thresholds crossed right now"
-          }
-          target="alerts"
-          onNavigate={onNavigate}
-        />
-      </motion.dl>
     </div>
-  );
-}
-
-interface SummaryStatProps {
-  label: string;
-  value: ReactNode;
-  valueDetail: ReactNode;
-  detail: string;
-  /** Optional shape under the detail line — a sparkline, usually. */
-  chart?: ReactNode;
-  target: string;
-  onNavigate: (tab: string) => void;
-}
-
-function SummaryStat({
-  label,
-  value,
-  valueDetail,
-  detail,
-  chart,
-  target,
-  onNavigate,
-}: SummaryStatProps) {
-  const navigate = () => onNavigate(target);
-
-  return (
-    <motion.dd variants={riseIn} className="contents">
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={`${label}: ${detail}. Open ${target} tab for details.`}
-        onClick={navigate}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            navigate();
-          }
-        }}
-        className="group cursor-pointer outline-none"
-      >
-        <Card className="h-full transition-colors group-hover:border-white/20">
-          <CardContent className="space-y-3">
-            {/*
-              The severity tag rides the header row rather than the value:
-              beside a 30px number a small pill floats against nothing, and
-              a label as long as "Unhealthy for Sensitive Groups" crowds the
-              figure it is supposed to qualify.
-            */}
-            <div className="flex items-center justify-between gap-3">
-              <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                {label}
-              </span>
-              <div className="flex min-w-0 items-center gap-2">
-                {valueDetail}
-                <ArrowRight
-                  aria-hidden="true"
-                  className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-                />
-              </div>
-            </div>
-            <p className="text-3xl font-medium leading-none tabular-nums">
-              <span className="block min-w-0 truncate">{value}</span>
-            </p>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {detail}
-            </p>
-            {chart}
-          </CardContent>
-        </Card>
-      </div>
-    </motion.dd>
   );
 }
