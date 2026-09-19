@@ -6,13 +6,24 @@ import { useState, type ReactNode } from "react";
 
 import { isRateLimited } from "@/lib/aqi/api";
 import { REFRESH_INTERVAL_MS } from "@/lib/config";
+import { LocaleProvider } from "@/lib/i18n/context";
+import type { Locale } from "@/lib/i18n/locales";
+import type { Messages } from "@/lib/i18n/messages";
 import { transition } from "@/lib/motion";
+
+interface ProvidersProps {
+  children: ReactNode;
+  /** Resolved on the server in `app/layout.tsx`, from the locale cookie. */
+  locale: Locale;
+  /** That locale's catalog, sent whole so no lookup needs a round trip. */
+  messages: Messages;
+}
 
 /**
  * One QueryClient per browser session. Created in state rather than at module
  * scope so a server render never shares a cache between requests.
  */
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ children, locale, messages }: ProvidersProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -38,7 +49,9 @@ export function Providers({ children }: { children: ReactNode }) {
         the OS setting authoritative over all of them at once.
       */}
       <MotionConfig reducedMotion="user" transition={transition}>
-        {children}
+        <LocaleProvider locale={locale} messages={messages}>
+          {children}
+        </LocaleProvider>
       </MotionConfig>
     </QueryClientProvider>
   );

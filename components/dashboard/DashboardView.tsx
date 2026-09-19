@@ -49,6 +49,7 @@ import {
   REFRESH_INTERVAL_MS,
 } from "@/lib/config";
 import { formatDateTime } from "@/lib/format";
+import { useTranslations } from "@/lib/i18n/context";
 
 /**
  * The dashboard screen: the nav beside the active view. Assembled from the
@@ -60,6 +61,7 @@ import { formatDateTime } from "@/lib/format";
  * was looking at.
  */
 export function DashboardView() {
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -165,8 +167,10 @@ export function DashboardView() {
   );
 
   const activeTabMeta = tabFor(activeTab);
-  const activeTitle = activeTabMeta.headerTitle ?? activeTabMeta.label;
-  const activeDescription = activeTabMeta.description ?? null;
+  const activeTitle = t(activeTabMeta.headerTitleKey ?? activeTabMeta.labelKey);
+  const activeDescription = activeTabMeta.descriptionKey
+    ? t(activeTabMeta.descriptionKey)
+    : null;
 
   const areasBlock = (fallbackTitle: string, fallbackDesc: string) =>
     areasQuery.isPending ? (

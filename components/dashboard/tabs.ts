@@ -12,6 +12,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import type { MessageKey } from "@/lib/i18n/messages";
+
 /**
  * The dashboard's views, in nav order.
  *
@@ -20,68 +22,73 @@ import {
  * (Map), what it means for you (Guidance), the raw numbers (Compare), and what
  * could change it (Plan).
  *
- * `headerTitle` overrides the page heading for a view whose nav label reads
- * differently at the top of the page; `description` is the line under it.
+ * `headerTitleKey` overrides the page heading for a view whose nav label reads
+ * differently at the top of the page; `descriptionKey` is the line under it.
+ *
+ * The three carry message keys rather than English, because this list is the
+ * nav in both languages. The text itself lives in `lib/i18n/messages/*.json`,
+ * which is the only place any of it is written down.
  *
  * Shared between the nav and the view because `value` is now a URL: it appears
  * in `?tab=`, so the list of valid values has to be checkable from one place.
  */
 export interface DashboardTab {
   value: string;
-  label: string;
-  headerTitle?: string;
-  description?: string;
+  labelKey: MessageKey;
+  headerTitleKey?: MessageKey;
+  descriptionKey?: MessageKey;
 }
 
 export const TABS: readonly DashboardTab[] = [
-  { value: "overview", label: "Overview", headerTitle: "Dashboard" },
+  {
+    value: "overview",
+    labelKey: "tabs.overview.label",
+    headerTitleKey: "tabs.overview.headerTitle",
+  },
   {
     value: "trend",
-    label: "Trends",
-    description: "How the city's air is moving, hour by hour.",
+    labelKey: "tabs.trend.label",
+    descriptionKey: "tabs.trend.description",
   },
   {
     value: "stations",
-    label: "Stations",
-    description:
-      "Every monitoring point on the map — pick one to read its full picture.",
+    labelKey: "tabs.stations.label",
+    descriptionKey: "tabs.stations.description",
   },
   {
     value: "hotspots",
-    label: "Hotspots",
-    description:
-      "The neighbourhoods with the worst air, and which species are driving it.",
+    labelKey: "tabs.hotspots.label",
+    descriptionKey: "tabs.hotspots.description",
   },
   {
     value: "guidance",
-    label: "Guidance",
-    description: "What to do outdoors today, and when.",
+    labelKey: "tabs.guidance.label",
+    descriptionKey: "tabs.guidance.description",
   },
   {
     value: "alerts",
-    label: "Alerts",
-    description: "Every threshold the current air has crossed.",
+    labelKey: "tabs.alerts.label",
+    descriptionKey: "tabs.alerts.description",
   },
   {
     value: "compare",
-    label: "Compare",
-    description: "The raw numbers across every neighbourhood.",
+    labelKey: "tabs.compare.label",
+    descriptionKey: "tabs.compare.description",
   },
   {
     value: "history",
-    label: "History",
-    description: "The stored record of observed hourly readings.",
+    labelKey: "tabs.history.label",
+    descriptionKey: "tabs.history.description",
   },
   {
     value: "accuracy",
-    label: "Model accuracy",
-    description:
-      "How close the forecast has been, and how that has changed over time.",
+    labelKey: "tabs.accuracy.label",
+    descriptionKey: "tabs.accuracy.description",
   },
   {
     value: "plan",
-    label: "Plan",
-    description: "Model what mitigation scenarios could do to the air.",
+    labelKey: "tabs.plan.label",
+    descriptionKey: "tabs.plan.description",
   },
 ] as const;
 

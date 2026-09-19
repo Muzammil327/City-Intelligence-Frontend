@@ -1,0 +1,32 @@
+{
+  "metadata.title": "City Intelligence — Air Quality",
+  "metadata.description": "Air-quality readings, trends, short-range forecasts and neighbourhood comparisons for Lahore.",
+
+  "nav.wordmark": "City Intelligence",
+  "nav.footnote": "Live data from Open-Meteo, OpenWeatherMap and WAQI. Neighbourhood values are model grid points, not physical sensors.",
+  "nav.open": "Open navigation",
+  "nav.close": "Close navigation",
+  "nav.drawerLabel": "Dashboard navigation",
+  "nav.switchLanguage": "Switch language",
+
+  "tabs.overview.label": "Overview",
+  "tabs.overview.headerTitle": "Dashboard",
+  "tabs.trend.label": "Trends",
+  "tabs.trend.description": "How the city's air is moving, hour by hour.",
+  "tabs.stations.label": "Stations",
+  "tabs.stations.description": "Every monitoring point on the map — pick one to read its full picture.",
+  "tabs.hotspots.label": "Hotspots",
+  "tabs.hotspots.description": "The neighbourhoods with the worst air, and which species are driving it.",
+  "tabs.guidance.label": "Guidance",
+  "tabs.guidance.description": "What to do outdoors today, and when.",
+  "tabs.alerts.label": "Alerts",
+  "tabs.alerts.description": "Every threshold the current air has crossed.",
+  "tabs.compare.label": "Compare",
+  "tabs.compare.description": "The raw numbers across every neighbourhood.",
+  "tabs.history.label": "History",
+  "tabs.history.description": "The stored record of observed hourly readings.",
+  "tabs.accuracy.label": "Model accuracy",
+  "tabs.accuracy.description": "How close the forecast has been, and how that has changed over time.",
+  "tabs.plan.label": "Plan",
+  "tabs.plan.description": "Model what mitigation scenarios could do to the air."
+}

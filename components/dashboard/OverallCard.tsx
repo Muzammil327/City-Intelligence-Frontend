@@ -73,8 +73,10 @@ function SpreadStrip({
 
 /**
  * Feature 13 — the overall Lahore picture, computed on the backend over the
- * neighbourhood points (mean PM2.5/PM10, worst EPA sub-index). Only present
- * when the backend could actually produce it.
+ * neighbourhood points as the mean of their US AQI values. That is the same
+ * index as the city gauge and as the high/low figures below, so the three
+ * cannot contradict one another. Only present when the backend could
+ * actually produce it.
  */
 export function OverallCard({ overall }: OverallCardProps) {
   const hasSpread =
@@ -136,8 +138,8 @@ export function OverallCard({ overall }: OverallCardProps) {
         ) : null}
 
         <p className="text-xs text-muted-foreground">
-          Mean PM2.5 and PM10 across the monitored neighbourhoods; the worse EPA
-          sub-index becomes the overall number.
+          Average US AQI across the monitored neighbourhoods — the same index as
+          the city reading above and the area figures beside it.
         </p>
       </CardContent>
     </Card>
