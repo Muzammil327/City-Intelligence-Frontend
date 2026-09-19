@@ -12,12 +12,14 @@
 import axios from "axios";
 
 import {
+  ACCURACY_HISTORY_MAX_POINTS,
   API_BASE_URL,
   HISTORY_MAX_POINTS,
   REQUEST_TIMEOUT_MS,
 } from "@/lib/config";
 
 import type {
+  AccuracyHistoryResponse,
   AreasResponse,
   CurrentReading,
   ForecastAccuracy,
@@ -141,6 +143,8 @@ export const aqiQueryKeys = {
   stations: () => [...aqiQueryKeys.all, "stations"] as const,
   accuracy: (hours?: number) =>
     [...aqiQueryKeys.all, "accuracy", hours] as const,
+  accuracyHistory: (hours?: number) =>
+    [...aqiQueryKeys.all, "accuracy-history", hours] as const,
 };
 
 /** Current AQI, concentrations, and weather. */
@@ -181,6 +185,26 @@ export function fetchForecast(hours: number): Promise<ForecastResponse> {
  */
 export function fetchForecastAccuracy(hours: number): Promise<ForecastAccuracy> {
   return apiFetch<ForecastAccuracy>("/forecast/accuracy", { hours });
+}
+
+/**
+ * How the model's skill has moved over time, newest first.
+ *
+ * `limit` travels with `hours` for the same reason it does on `/history`: the
+ * backend caps rows separately from the window, so a month-long request without
+ * one comes back truncated rather than empty, which is the harder bug to see.
+ *
+ * An empty `snapshots` list is a valid answer, not a failure — nothing has been
+ * recorded yet.
+ */
+export function fetchAccuracyHistory(
+  hours: number,
+  limit: number = ACCURACY_HISTORY_MAX_POINTS,
+): Promise<AccuracyHistoryResponse> {
+  return apiFetch<AccuracyHistoryResponse>("/forecast/accuracy/history", {
+    hours,
+    limit,
+  });
 }
 
 /**

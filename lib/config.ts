@@ -47,6 +47,16 @@ export const HISTORY_MAX_POINTS = 500;
 /** The forecast horizon requested from the backend (matches its ridge model). */
 export const FORECAST_HORIZON_HOURS = 24;
 
+/** How far back the model-accuracy trend reads stored snapshots. */
+export const ACCURACY_HISTORY_HOURS = 30 * 24;
+
+/**
+ * Matching row cap for that window. The backend's `limit` defaults to 200 and
+ * caps at 500 — asked for a month without one, a long trend comes back
+ * silently truncated, exactly as `HISTORY_MAX_POINTS` guards against.
+ */
+export const ACCURACY_HISTORY_MAX_POINTS = 500;
+
 /**
  * Timezone every timestamp is rendered in. Fixed rather than the viewer's
  * locale so the server and client renders produce identical markup — a

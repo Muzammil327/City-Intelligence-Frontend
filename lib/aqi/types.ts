@@ -159,6 +159,50 @@ export interface ForecastAccuracy {
 }
 
 /**
+ * How an accuracy figure was arrived at.
+ *
+ * `hindcast` refits the model without the most recent hours and scores it
+ * against them — available immediately, but it measures a re-run rather than a
+ * forecast anyone was shown. `verified` scores predictions the service actually
+ * published against the observations that later arrived. The two answer
+ * different questions and are never averaged together.
+ */
+export type AccuracyBasis = "hindcast" | "verified";
+
+/** One dated accuracy measurement, from GET /forecast/accuracy/history. */
+export interface AccuracySnapshot {
+  /** ISO-8601 UTC timestamp of the measurement, not of the request. */
+  recordedAt: string;
+  basis: AccuracyBasis;
+  city: string;
+  model: string;
+  horizonHours: number;
+  trainingSamples: number;
+  /** Predicted hours that had an observation to score against. */
+  scoredPoints: number;
+  /** Average miss, in AQI points. Lower is better. */
+  meanAbsoluteError: number;
+  rootMeanSquareError: number;
+  /** Share of hours landing in the correct EPA category. Higher is better. */
+  bandAccuracyPct: number;
+}
+
+/**
+ * GET /forecast/accuracy/history — how the model's skill has moved over time.
+ *
+ * Reads stored snapshots only; it never refits, which is why its window can be
+ * far wider than a single hindcast horizon.
+ */
+export interface AccuracyHistoryResponse {
+  city: string;
+  count: number;
+  /** How many returned snapshots came from each basis. */
+  bases: Record<string, number>;
+  /** Newest first, matching every other list this API returns. */
+  snapshots: AccuracySnapshot[];
+}
+
+/**
  * A physical monitoring station, from GET /stations.
  *
  * Deliberately thinner than `AreaReading`: a station reports an index and

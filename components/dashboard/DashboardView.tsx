@@ -1,21 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  BarChart3,
-  Bell,
-  Flame,
-  HeartPulse,
-  History,
-  LayoutDashboard,
-  MapPin,
-  Target,
-  TrendingUp,
-} from "lucide-react";
-import { motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 
 import { PollutantMixCard } from "@/components/aqi/PollutantMixCard";
+import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { ModelAccuracyPanel } from "@/components/dashboard/ModelAccuracyPanel";
+import { DEFAULT_TAB, isTabValue, tabFor } from "@/components/dashboard/tabs";
 import {
   AlertsPanel,
   ComparePanel,
@@ -37,7 +29,7 @@ import { Reveal, RevealGroup } from "@/components/common/Reveal";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   aqiQueryKeys,
   fetchAreas,
@@ -57,82 +49,48 @@ import {
   REFRESH_INTERVAL_MS,
 } from "@/lib/config";
 import { formatDateTime } from "@/lib/format";
-import { indicatorTransition } from "@/lib/motion";
 
 /**
- * The views. Overview is a summary only — one headline and four cards that
- * point at the tab holding that subject's depth: how it changes (Trends),
- * where exactly (Map), what it means for you (Air & health), the raw numbers
- * (Compare & history), and what could change it (Plan).
+ * The dashboard screen: the nav beside the active view. Assembled from the
+ * live API, with each block keeping its own loading/error state so a failed
+ * query never blanks the page.
  *
- * `headerTitle` sets the page-heading word per view (Overview reads as the
- * Dashboard); `description` is the one-line summary under that heading.
- */
-const TABS = [
-  { value: "overview", label: "Overview", headerTitle: "Dashboard" },
-  {
-    value: "trend",
-    label: "Trends",
-    description: "How the city's air is moving, hour by hour.",
-  },
-  {
-    value: "stations",
-    label: "Stations",
-    description:
-      "Every monitoring point on the map — pick one to read its full picture.",
-  },
-  {
-    value: "hotspots",
-    label: "Hotspots",
-    description:
-      "The neighbourhoods with the worst air, and which species are driving it.",
-  },
-  {
-    value: "guidance",
-    label: "Guidance",
-    description: "What to do outdoors today, and when.",
-  },
-  {
-    value: "alerts",
-    label: "Alerts",
-    description: "Every threshold the current air has crossed.",
-  },
-  {
-    value: "compare",
-    label: "Compare",
-    description: "The raw numbers across every neighbourhood.",
-  },
-  {
-    value: "history",
-    label: "History",
-    description: "The stored record of observed hourly readings.",
-  },
-  {
-    value: "plan",
-    label: "Plan",
-    description: "Model what mitigation scenarios could do to the air.",
-  },
-] as const;
-
-const TAB_ICONS = {
-  overview: LayoutDashboard,
-  trend: TrendingUp,
-  stations: MapPin,
-  hotspots: Flame,
-  guidance: HeartPulse,
-  alerts: Bell,
-  compare: BarChart3,
-  history: History,
-  plan: Target,
-} as const;
-
-/**
- * The dashboard screen: a sidebar nav on the left, the active view on the
- * right. Assembled from the live API, with each block keeping its own
- * loading/error state so a failed query never blanks the page.
+ * The active view lives in `?tab=`, not in component state, so a refresh, a
+ * shared link and the browser's back button all land on the view the reader
+ * was looking at.
  */
 export function DashboardView() {
-  const [activeTab, setActiveTab] = useState<string>(TABS[0].value);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // `?tab=` is user-supplied: an unknown value falls back to the default
+  // rather than rendering a shell with no content in it.
+  const requested = searchParams.get("tab");
+  const activeTab = isTabValue(requested) ? requested : DEFAULT_TAB;
+
+  const handleTabChange = useCallback(
+    (value: string) => {
+      if (!isTabValue(value)) return;
+
+      const params = new URLSearchParams(searchParams.toString());
+      // The default view is the bare URL — no `?tab=overview` to share around.
+      if (value === DEFAULT_TAB) {
+        params.delete("tab");
+      } else {
+        params.set("tab", value);
+      }
+
+      const query = params.toString();
+      // `replace`, not `push`: nine nav clicks should not mean nine presses of
+      // the back button to leave the page. `scroll: false` because the view
+      // changes in place and yanking to the top reads as a page load.
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   const currentQuery = useQuery({
     queryKey: aqiQueryKeys.current(),
@@ -206,12 +164,9 @@ export function DashboardView() {
     [current, forecastQuery.data, readings, areasQuery.data],
   );
 
-  const activeTabMeta =
-    TABS.find((tab) => tab.value === activeTab) ?? TABS[0];
-  const activeTitle =
-    "headerTitle" in activeTabMeta ? activeTabMeta.headerTitle : activeTabMeta.label;
-  const activeDescription =
-    "description" in activeTabMeta ? activeTabMeta.description : null;
+  const activeTabMeta = tabFor(activeTab);
+  const activeTitle = activeTabMeta.headerTitle ?? activeTabMeta.label;
+  const activeDescription = activeTabMeta.description ?? null;
 
   const areasBlock = (fallbackTitle: string, fallbackDesc: string) =>
     areasQuery.isPending ? (
@@ -262,59 +217,10 @@ export function DashboardView() {
     <Tabs
       orientation="vertical"
       value={activeTab}
-      onValueChange={setActiveTab}
-      className="w-full flex-col items-stretch gap-8 lg:h-dvh lg:flex-row lg:items-stretch lg:gap-0 lg:overflow-hidden"
+      onValueChange={handleTabChange}
+      className="w-full flex-col items-stretch lg:h-dvh lg:flex-row lg:items-stretch lg:overflow-hidden"
     >
-      <aside className="shrink-0 px-5 py-6 lg:flex lg:h-full lg:min-h-0 lg:w-60 lg:flex-col lg:gap-6 lg:border-r lg:border-white/5 lg:px-5 lg:py-6">
-        <div className="flex items-center justify-center border-b border-white/5 pb-4">
-          <p className="truncate text-xl font-semibold tracking-tight">
-            City Intelligence
-          </p>
-        </div>
-
-        <TabsList
-          variant="line"
-          className="h-auto w-full min-h-0 flex-col items-stretch gap-1 overflow-y-auto rounded-lg bg-transparent p-0"
-        >
-          {TABS.map((tab) => {
-            const Icon = TAB_ICONS[tab.value];
-            return (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="relative w-full justify-start gap-2.5 rounded-md border border-transparent px-0 py-0 text-left transition-colors hover:border-white/10 hover:bg-white/5"
-              >
-                {/*
-                  The active pill is a shared-layout element that slides
-                  between nav rows, so the travel reads as one object moving.
-                */}
-                {activeTab === tab.value ? (
-                  <motion.span
-                    layoutId="dashboard-nav-indicator"
-                    transition={indicatorTransition}
-                    aria-hidden="true"
-                    className="absolute inset-0 rounded-md bg-white/10 ring-1 ring-white/10"
-                  />
-                ) : null}
-                {/*
-                  The icon sits in the same 36px column as the wordmark's
-                  glyph above it, so the nav labels start on the wordmark's
-                  left edge rather than a column of their own.
-                */}
-                <span className="relative flex size-9 shrink-0 items-center justify-center">
-                  <Icon className="size-4" aria-hidden="true" />
-                </span>
-                <span className="relative">{tab.label}</span>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        <p className="hidden text-[10px] leading-relaxed text-muted-foreground lg:mt-auto lg:block">
-          Live data from Open-Meteo, OpenWeatherMap and WAQI. Neighbourhood
-          values are model grid points, not physical sensors.
-        </p>
-      </aside>
+      <DashboardNav activeTab={activeTab} />
 
       <div className="min-w-0 flex-1 lg:h-full lg:overflow-y-auto">
         <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
@@ -350,7 +256,7 @@ export function DashboardView() {
                   history={readings}
                   accuracy={accuracyQuery.data ?? null}
                   alerts={alerts}
-                  onNavigate={setActiveTab}
+                  onNavigate={handleTabChange}
                 />
               ) : currentQuery.isError ? (
                 <ErrorState
@@ -459,6 +365,14 @@ export function DashboardView() {
           <RevealGroup className="space-y-6">
             <Reveal>
               <HistoryPanel />
+            </Reveal>
+          </RevealGroup>
+        </TabsContent>
+
+        <TabsContent value="accuracy" className="pt-0">
+          <RevealGroup className="space-y-6">
+            <Reveal>
+              <ModelAccuracyPanel />
             </Reveal>
           </RevealGroup>
         </TabsContent>

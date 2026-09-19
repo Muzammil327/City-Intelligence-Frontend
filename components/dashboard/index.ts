@@ -6,6 +6,7 @@ export { CorrelationPanel } from "./CorrelationPanel";
 export { ExplainableForecastCard } from "./ExplainableForecastCard";
 export { HistoryPanel } from "./HistoryPanel";
 export { HotspotsPanel } from "./HotspotsPanel";
+export { ModelAccuracyPanel } from "./ModelAccuracyPanel";
 export { OverallCard } from "./OverallCard";
 export { OverviewSummary } from "./OverviewSummary";
 export { QualityIndicator } from "./QualityIndicator";
